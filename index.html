@@ -1,0 +1,926 @@
+cat > /mnt/user-data/outputs/IABO_GrandFinal_2026.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IABO 2026 — Grand Final Preparation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0f1117;--bg2:#181c27;--bg3:#1e2235;--card:#252a3a;
+    --accent:#4ade80;--accent2:#22d3ee;--accent3:#f472b6;
+    --text:#e8eaf6;--muted:#8892b0;--border:#2a3050;
+    --danger:#ff6b6b;--warn:#ffd166;--ok:#4ade80;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+  h1,h2,h3{font-family:'DM Serif Display',serif}
+  
+  /* HEADER */
+  .header{background:linear-gradient(135deg,#0f1117 0%,#1a1f35 50%,#0f1117 100%);border-bottom:1px solid var(--border);padding:2rem 1.5rem;text-align:center;position:relative;overflow:hidden}
+  .header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 60% 40%,rgba(74,222,128,.06) 0%,transparent 60%),radial-gradient(ellipse at 30% 70%,rgba(34,211,238,.05) 0%,transparent 50%);pointer-events:none}
+  .header h1{font-size:2rem;color:#fff;letter-spacing:-.02em;margin-bottom:.3rem}
+  .header p{color:var(--muted);font-size:.9rem;font-weight:300}
+  .badge{display:inline-block;background:rgba(74,222,128,.15);color:var(--accent);border:1px solid rgba(74,222,128,.3);border-radius:20px;padding:.25rem .85rem;font-size:.75rem;font-weight:500;margin:.5rem .3rem 0;letter-spacing:.05em}
+  
+  /* NAV TABS */
+  .nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav-tab{padding:.9rem 1.5rem;font-size:.85rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;flex-shrink:0}
+  .nav-tab:hover{color:var(--text)}
+  .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  
+  /* CONTENT */
+  .content{display:none;padding:1.5rem;max-width:900px;margin:0 auto}
+  .content.active{display:block}
+  
+  /* WELCOME */
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center}
+  .stat-card .num{font-size:2rem;font-weight:600;color:var(--accent);font-family:'DM Serif Display',serif}
+  .stat-card .lbl{font-size:.8rem;color:var(--muted);margin-top:.25rem}
+  .info-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1rem 0;font-size:.875rem;line-height:1.7;color:var(--muted)}
+  .info-box strong{color:var(--text)}
+  
+  /* QUIZ */
+  .quiz-header{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .progress-bar{height:6px;background:var(--border);border-radius:3px;margin:.5rem 0;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width .4s ease}
+  .section-label{font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:.75rem}
+  .q-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+  .q-num{font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
+  .q-text{font-size:.9rem;line-height:1.6;margin-bottom:1rem;color:var(--text)}
+  .options{display:flex;flex-direction:column;gap:.5rem}
+  .opt{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem .9rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s;font-size:.87rem;color:var(--text);background:transparent}
+  .opt:hover:not(.disabled){background:var(--bg3);border-color:var(--accent2)}
+  .opt.selected{border-color:var(--accent2);background:rgba(34,211,238,.1)}
+  .opt.correct{border-color:var(--ok)!important;background:rgba(74,222,128,.12)!important;color:var(--ok)}
+  .opt.wrong{border-color:var(--danger)!important;background:rgba(255,107,107,.1)!important;color:var(--danger)}
+  .opt.disabled{cursor:default}
+  .opt-key{font-weight:600;min-width:18px;color:var(--accent2)}
+  .opt.correct .opt-key{color:var(--ok)}
+  .opt.wrong .opt-key{color:var(--danger)}
+  .explanation{margin-top:.85rem;padding:.75rem;background:var(--bg3);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:.83rem;line-height:1.6;color:var(--muted);display:none}
+  .explanation.show{display:block}
+  .explanation strong{color:var(--accent)}
+  
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.25rem;border-radius:8px;font-size:.875rem;font-weight:500;cursor:pointer;border:none;transition:.15s}
+  .btn-primary{background:var(--accent);color:#0f1117}
+  .btn-primary:hover{background:#22c55e}
+  .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+  .btn-secondary:hover{background:var(--card)}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-info{background:var(--accent2);color:#0f1117}
+  .btn-row{display:flex;gap:.75rem;flex-wrap:wrap;margin:1.25rem 0}
+  
+  /* TIMER */
+  .timer{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--warn);min-width:80px;text-align:right}
+  .timer.urgent{color:var(--danger);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  
+  /* RESULT */
+  .result-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;margin:1.5rem 0}
+  .result-score{font-size:4rem;font-family:'DM Serif Display',serif;font-weight:400}
+  .score-A{color:var(--ok)}
+  .score-B{color:#a3e635}
+  .score-C{color:var(--warn)}
+  .score-D{color:#fb923c}
+  .score-E{color:var(--danger)}
+  .section-scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin:1.25rem 0}
+  .sec-score{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center}
+  .sec-score .s-letter{font-size:1.25rem;font-weight:600;color:var(--accent2)}
+  .sec-score .s-val{font-size:1.5rem;font-family:'DM Serif Display',serif;color:var(--text)}
+  .sec-score .s-lbl{font-size:.7rem;color:var(--muted);margin-top:.2rem}
+  
+  /* CASE STUDY */
+  .case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.25rem 0}
+  .case-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+  .case-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+  .case-card:hover{border-color:var(--accent2);transform:translateY(-2px)}
+  .case-card.pillar-1::before{background:linear-gradient(90deg,#f472b6,#e879f9)}
+  .case-card.pillar-2::before{background:linear-gradient(90deg,#4ade80,#22d3ee)}
+  .case-card.pillar-3::before{background:linear-gradient(90deg,#22d3ee,#60a5fa)}
+  .case-card.pillar-4::before{background:linear-gradient(90deg,#fb923c,#fbbf24)}
+  .case-pillar{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+  .p1{color:#f472b6}.p2{color:#4ade80}.p3{color:#22d3ee}.p4{color:#fb923c}
+  .case-title{font-size:1rem;font-family:'DM Serif Display',serif;color:var(--text);margin-bottom:.4rem;line-height:1.3}
+  .case-desc{font-size:.78rem;color:var(--muted);line-height:1.5}
+  
+  /* CASE DETAIL */
+  .case-detail{display:none}
+  .case-detail.active{display:block}
+  .case-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+  .case-section h3{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--accent2);margin-bottom:.75rem}
+  .case-section p,.case-section li{font-size:.875rem;line-height:1.7;color:var(--muted)}
+  .case-section li{margin-left:1.25rem;margin-bottom:.3rem}
+  .case-section li strong,.case-section p strong{color:var(--text)}
+  .tag{display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:500;margin:.2rem .15rem}
+  .tag-g{background:rgba(74,222,128,.15);color:var(--accent);border:1px solid rgba(74,222,128,.2)}
+  .tag-b{background:rgba(34,211,238,.15);color:var(--accent2);border:1px solid rgba(34,211,238,.2)}
+  .tag-r{background:rgba(255,107,107,.15);color:var(--danger);border:1px solid rgba(255,107,107,.2)}
+  .tag-y{background:rgba(255,209,102,.15);color:var(--warn);border:1px solid rgba(255,209,102,.2)}
+  .toggle-btn{background:var(--bg3);border:1px solid var(--border);color:var(--accent2);padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;margin:.5rem .3rem}
+  .toggle-btn:hover{background:var(--card)}
+  .hidden-section{display:none}
+  .hidden-section.show{display:block}
+  .ppt-box{background:var(--bg3);border:1px solid var(--accent);border-radius:10px;padding:1rem 1.25rem;margin:.75rem 0}
+  .ppt-slide{border-left:3px solid var(--accent2);padding:.5rem .75rem;margin:.5rem 0;font-size:.83rem;color:var(--muted)}
+  .ppt-slide strong{color:var(--text);display:block;font-size:.88rem}
+  
+  /* RESPONSIVE */
+  @media(max-width:600px){
+    .header h1{font-size:1.5rem}
+    .nav-tab{padding:.75rem 1rem;font-size:.8rem}
+    .result-score{font-size:3rem}
+    .timer{font-size:1.2rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <p style="font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent2);margin-bottom:.4rem">Persiapan Grand Final</p>
+  <h1>International Applied Biology Olympiad</h1>
+  <p>Bali · 12–14 Juni 2026</p>
+  <div>
+    <span class="badge">60 Soal PG · A–J</span>
+    <span class="badge">8 Studi Kasus Lengkap</span>
+    <span class="badge">Pembahasan Detail</span>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-tab active" onclick="showTab('home')">Beranda</div>
+  <div class="nav-tab" onclick="showTab('quiz')">Tes PG (60 Soal)</div>
+  <div class="nav-tab" onclick="showTab('cases')">Studi Kasus</div>
+  <div class="nav-tab" onclick="showTab('tips')">Tips & Strategi</div>
+</div>
+
+<!-- HOME -->
+<div id="tab-home" class="content active">
+  <h2 style="font-size:1.4rem;margin-bottom:.5rem">Selamat Datang!</h2>
+  <p style="color:var(--muted);font-size:.875rem;margin-bottom:1.25rem">Platform latihan eksklusif untuk Grand Final IABO 2026. Gunakan dengan serius — ini simulasi kondisi ujian nyata.</p>
+  <div class="grid2">
+    <div class="stat-card"><div class="num">60</div><div class="lbl">Soal PG (A–J)</div></div>
+    <div class="stat-card"><div class="num">8</div><div class="lbl">Studi Kasus</div></div>
+    <div class="stat-card"><div class="num">60'</div><div class="lbl">Timer PG</div></div>
+    <div class="stat-card"><div class="num">4</div><div class="lbl">Pilar Tematik</div></div>
+  </div>
+  <div class="info-box">
+    <strong>Format Grand Final:</strong><br>
+    1. <strong>Tes Kognitif PG</strong> — 60 soal dalam 60 menit (1 menit/soal). Klik tab "Tes PG" untuk memulai.<br>
+    2. <strong>Studi Kasus</strong> — Pilih 1 topik dari 4 pilar, buat solusi dalam PPT (2 jam), presentasi + tanya jawab 10 menit.
+  </div>
+  <div class="info-box">
+    <strong>Studi Kasus yang Pernah Keluar:</strong><br>
+    • 2021 Penyisihan: Diabetes Mellitus<br>
+    • 2021 Grand Final Pilihan 1: Iron Deficiency Anemia<br>
+    • 2021 Grand Final Pilihan 2: Cervical Cancer (HPV, vaksin, Pap smear)<br>
+    • 2021 Grand Final Pilihan 3: Senile Osteoporosis (osteoblas/osteoklas, kalsium, estrogen)
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="showTab('quiz');startQuiz()">Mulai Tes PG</button>
+    <button class="btn btn-secondary" onclick="showTab('cases')">Latihan Studi Kasus</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="tab-quiz" class="content">
+  <div id="quiz-start">
+    <h2 style="font-size:1.4rem;margin-bottom:.5rem">Tes Kognitif PG</h2>
+    <p style="color:var(--muted);font-size:.875rem;margin-bottom:1.25rem">60 soal sesuai kisi-kisi IABO, distribusi merata A–J. Tersedia dua mode.</p>
+    <div class="grid2" style="max-width:500px">
+      <div class="stat-card" style="cursor:pointer;border-color:var(--accent2)" onclick="startQuiz('timed')">
+        <div class="num" style="color:var(--accent2)">⏱</div>
+        <div class="lbl" style="font-size:.875rem;margin-top:.3rem"><strong style="color:var(--text)">Mode Ujian</strong><br>60 menit, jawab semua</div>
+      </div>
+      <div class="stat-card" style="cursor:pointer" onclick="startQuiz('free')">
+        <div class="num">📖</div>
+        <div class="lbl" style="font-size:.875rem;margin-top:.3rem"><strong style="color:var(--text)">Mode Belajar</strong><br>Tanpa timer, lihat jawaban langsung</div>
+      </div>
+    </div>
+  </div>
+  <div id="quiz-area" style="display:none">
+    <div class="quiz-header">
+      <div>
+        <div style="font-size:.85rem;font-weight:500" id="q-counter">Soal 1 / 60</div>
+        <div class="progress-bar" style="width:200px"><div class="progress-fill" id="q-progress" style="width:0%"></div></div>
+      </div>
+      <div class="timer" id="timer-display">60:00</div>
+    </div>
+    <div id="questions-container"></div>
+    <div class="btn-row" id="quiz-actions">
+      <button class="btn btn-primary" onclick="submitQuiz()">Selesaikan &amp; Lihat Pembahasan</button>
+      <button class="btn btn-secondary" onclick="confirmReset()">Reset</button>
+    </div>
+  </div>
+  <div id="quiz-result" style="display:none">
+    <div class="result-box">
+      <div style="font-size:.875rem;color:var(--muted);margin-bottom:.5rem">Nilai Akhir</div>
+      <div class="result-score" id="final-score">0</div>
+      <div style="font-size:1rem;color:var(--muted);margin-bottom:.75rem" id="grade-label">—</div>
+      <div style="font-size:.875rem;color:var(--muted)" id="result-detail">—</div>
+    </div>
+    <div class="section-scores" id="section-scores"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="reviewAnswers()">Tinjau Jawaban &amp; Pembahasan</button>
+      <button class="btn btn-primary" onclick="resetQuiz()">Coba Lagi</button>
+    </div>
+  </div>
+  <div id="review-area" style="display:none">
+    <div class="btn-row"><button class="btn btn-secondary" onclick="backToResult()">← Kembali ke Hasil</button></div>
+    <div id="review-questions"></div>
+  </div>
+</div>
+
+<!-- CASES -->
+<div id="tab-cases" class="content">
+  <div id="cases-list">
+    <h2 style="font-size:1.4rem;margin-bottom:.5rem">Latihan Studi Kasus</h2>
+    <p style="color:var(--muted);font-size:.875rem;margin-bottom:1.25rem">8 topik berpotensi besar keluar di Grand Final. Klik kartu untuk melihat studi kasus lengkap + kerangka PPT + pembahasan.</p>
+    <div class="case-grid" id="case-cards"></div>
+  </div>
+  <div id="case-detail-area"></div>
+</div>
+
+<!-- TIPS -->
+<div id="tab-tips" class="content">
+  <h2 style="font-size:1.4rem;margin-bottom:1rem">Tips &amp; Strategi Grand Final</h2>
+  <div class="case-section">
+    <h3>Strategi Tes PG (60 soal / 60 menit)</h3>
+    <ul>
+      <li><strong>1 menit per soal</strong> — jika ragu, tandai dan lanjut.</li>
+      <li>Baca pilihan sebelum soal panjang — identifikasi kata kunci.</li>
+      <li>Eliminasi 2 opsi paling tidak masuk akal → peluang 50%.</li>
+      <li>Soal bertipe "kecuali/bukan" — cari yang TIDAK sesuai.</li>
+      <li>Pelajari mekanisme, bukan hafalan nama saja.</li>
+    </ul>
+  </div>
+  <div class="case-section">
+    <h3>Strategi Studi Kasus (2 jam PPT)</h3>
+    <ul>
+      <li><strong>15 menit pertama</strong>: Baca soal, buat outline 6–8 slide.</li>
+      <li><strong>Slide 1</strong>: Pendahuluan + definisi + statistik global.</li>
+      <li><strong>Slide 2–3</strong>: Mekanisme biologis (gambar/diagram).</li>
+      <li><strong>Slide 4–5</strong>: Solusi inovatif + evidence-based.</li>
+      <li><strong>Slide 6–7</strong>: Implementasi + One Health / SDGs.</li>
+      <li><strong>Slide 8</strong>: Kesimpulan + referensi kunci.</li>
+      <li>Selalu integrasikan <strong>bioteknologi modern</strong> (CRISPR, mRNA, dll) sebagai solusi.</li>
+    </ul>
+  </div>
+  <div class="case-section">
+    <h3>Tanya Jawab (10 menit)</h3>
+    <ul>
+      <li>Jika tidak tahu → akui, lalu analogikan dengan konsep yang kamu kuasai.</li>
+      <li>Pertanyaan juri biasanya tentang <strong>mekanisme molekuler</strong> atau <strong>aplikasi praktis</strong>.</li>
+      <li>Siapkan jawaban untuk "bagaimana implementasi di Indonesia?"</li>
+      <li>Gunakan terminologi ilmiah yang tepat tapi jelaskan dengan analogi.</li>
+    </ul>
+  </div>
+  <div class="case-section">
+    <h3>Topik Prioritas Belajar</h3>
+    <div style="margin-top:.5rem">
+      <span class="tag tag-r">AMR &amp; One Health</span>
+      <span class="tag tag-b">CRISPR &amp; Gene Therapy</span>
+      <span class="tag tag-g">Gut Microbiome</span>
+      <span class="tag tag-y">Coral Bleaching</span>
+      <span class="tag tag-r">Pandemi Influenza</span>
+      <span class="tag tag-b">mRNA Vaccine</span>
+      <span class="tag tag-g">Bioremediasi</span>
+      <span class="tag tag-y">Golden Rice &amp; GMO</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== QUIZ DATA =====================
+const QUESTIONS = [
+  // A. CELL BIOLOGY (6 soal)
+  {sec:'A',label:'Cell Biology',q:'Manakah organel yang berperan dalam modifikasi pasca-translasi protein dan pengemasan untuk sekresi?',opts:['Retikulum endoplasma kasar','Badan Golgi','Lisosom','Mitokondria'],ans:1,exp:'Badan Golgi (aparatus Golgi) menerima protein dari RE kasar, melakukan modifikasi (glikosilasi, fosforilasi), lalu mengemasnya dalam vesikel untuk sekresi atau dikirim ke lisosom.'},
+  {sec:'A',label:'Cell Biology',q:'Pada pembelahan mitosis, benang-benang spindel melekat pada kromosom melalui struktur bernama:',opts:['Sentromer','Telomer','Kinetokor','Satelit kromosom'],ans:2,exp:'Kinetokor adalah struktur protein yang berada di sentromer kromosom dan menjadi tempat perlekatan benang spindel (mikrotubulus) saat mitosis dan meiosis.'},
+  {sec:'A',label:'Cell Biology',q:'Proses transpor glukosa dari lumen usus ke sel epitel secara berpasangan dengan Na⁺ masuk ke sel termasuk jenis:',opts:['Difusi sederhana','Difusi terfasilitasi','Transpor aktif primer','Transpor aktif sekunder (kotransport)'],ans:3,exp:'Kotransport Na⁺-glukosa menggunakan gradien Na⁺ yang dibuat oleh Na⁺/K⁺-ATPase (transpor aktif primer). Glukosa masuk bersama Na⁺ tanpa ATP langsung — ini transpor aktif sekunder.'},
+  {sec:'A',label:'Cell Biology',q:'Sel punca embrionik (ESC) berbeda dari sel punca dewasa karena ESC bersifat:',opts:['Multipoten','Oligopoten','Pluripoten','Unipoten'],ans:2,exp:'ESC bersifat pluripoten — dapat berdiferensiasi menjadi hampir semua jenis sel tubuh (tiga lapis germinal), tetapi tidak dapat membentuk plasenta. Totipoten hanya ada pada zigot dan blastomer awal.'},
+  {sec:'A',label:'Cell Biology',q:'Pada sinyal melalui reseptor tirosin kinase (RTK), setelah ligan berikatan, langkah segera yang terjadi adalah:',opts:['Aktivasi protein G','Autofosforilasi reseptor','Pelepasan Ca²⁺ dari RE','Translokasi ke nukleus'],ans:1,exp:'RTK mengalami dimerisasi setelah ligan berikatan, kemudian terjadi autofosforilasi residu tirosin antar-subunit. Ini menciptakan situs docking bagi protein sinyal hilir (Ras, PI3K, dll).'},
+  {sec:'A',label:'Cell Biology',q:'Meiosis II berbeda dari mitosis karena pada meiosis II sel yang membelah adalah:',opts:['Sel diploid dengan kromosom homolog berpasangan','Sel haploid dengan kromosom saudara (sister chromatids)','Sel diploid dengan kromatid saudara','Sel haploid dengan kromosom homolog'],ans:1,exp:'Meiosis II dimulai dari sel haploid (produk meiosis I) yang memiliki kromosom dengan dua kromatid saudara. Pemisahan kromatid saudara ini mirip mitosis, tetapi sel awalnya sudah haploid.'},
+
+  // B. MOLECULAR BIOLOGY (6 soal)
+  {sec:'B',label:'Molecular Biology',q:'Enzim yang membuka untaian ganda DNA saat replikasi dengan memotong ikatan fosfodiester untuk melepas tegangan puntir adalah:',opts:['Helikase','Topoisomerase','Primase','Ligase'],ans:1,exp:'Topoisomerase (terutama tipe II) memotong satu atau dua untai DNA untuk melepas tegangan superkoiling di depan garpu replikasi. Helikase membuka ikatan hidrogen, bukan memotong tulang punggung fosfodiester.'},
+  {sec:'B',label:'Molecular Biology',q:'Kodon AUG pada mRNA tidak hanya berfungsi sebagai kodon start, tetapi juga mengkode asam amino:',opts:['Valin','Treonin','Metionin','Sistein'],ans:2,exp:'AUG mengkode metionin (Met) dan berfungsi sebagai kodon inisiasi. Semua protein eukariot dimulai dengan Met (walaupun sering dipotong pasca-translasi).'},
+  {sec:'B',label:'Molecular Biology',q:'Pada regulasi gen prokariot, operator lac ditempati oleh represor lac ketika:',opts:['Glukosa tersedia','Laktosa tersedia','Tidak ada laktosa','Kedua glukosa dan laktosa tersedia'],ans:2,exp:'Represor lac aktif (tidak terikat inducer) dan menempel di operator sehingga transkripsi operon lac diblok. Ketika laktosa hadir, alolaktosa berikatan ke represor → perubahan konformasi → represor lepas dari operator.'},
+  {sec:'B',label:'Molecular Biology',q:'PCR memerlukan suhu ~95°C pada tahap denaturasi. Fungsi utama suhu tinggi ini adalah:',opts:['Mengaktifkan Taq polimerase','Memisahkan untai ganda DNA','Menempel primer ke cetakan','Mensintesis untai baru'],ans:1,exp:'Suhu ~95°C memutus ikatan hidrogen antar pasang basa sehingga untai ganda DNA terpisah menjadi dua untai tunggal yang siap dijadikan cetakan oleh primer.'},
+  {sec:'B',label:'Molecular Biology',q:'Mutasi titik yang mengubah kodon asam amino menjadi kodon stop disebut:',opts:['Mutasi missense','Mutasi nonsense','Mutasi frameshift','Mutasi diam (silent)'],ans:1,exp:'Mutasi nonsense mengubah kodon asam amino menjadi kodon stop (UAA, UAG, UGA) sehingga translasi terhenti prematur dan menghasilkan protein terpotong yang biasanya tidak fungsional.'},
+  {sec:'B',label:'Molecular Biology',q:'Teknologi CRISPR-Cas9 memanfaatkan RNA pemandu (sgRNA) yang memiliki urutan komplementer dengan DNA target. Pemotongan terjadi di dekat urutan PAM yang pada Cas9 SpCas9 adalah:',opts:['5′-TTTV-3′','5′-NGG-3′','5′-TTTN-3′','5′-NNGRRT-3′'],ans:1,exp:'SpCas9 mengenali urutan PAM 5′-NGG-3′ di untai non-template. sgRNA memandu Cas9 ke sekuens target dan Cas9 memotong ~3 bp upstream PAM menghasilkan double-strand break (DSB).'},
+
+  // C. GENETICS (6 soal)
+  {sec:'C',label:'Genetics',q:'Seorang wanita carrier hemofilia A (X^H X^h) menikah dengan pria normal. Berapa peluang anak laki-lakinya menderita hemofilia?',opts:['25%','50%','75%','100%'],ans:1,exp:'Anak laki-laki mendapat kromosom X dari ibu. Ibu carrier memiliki X^H dan X^h masing-masing 50%. Jadi 50% anak laki-laki mendapat X^h dan menderita hemofilia.'},
+  {sec:'C',label:'Genetics',q:'Pada kodominansi, ketika individu dengan genotipe I^A I^B memiliki golongan darah AB, ini menunjukkan bahwa:',opts:['Alel I^A dominan terhadap I^B','Kedua alel menghasilkan produk yang sama','Kedua alel diekspresikan secara independen','I^A dan I^B bergabung membentuk antigen baru'],ans:2,exp:'Kodominansi berarti kedua alel diekspresikan secara penuh dan independen. I^A menghasilkan antigen A dan I^B menghasilkan antigen B — keduanya muncul di permukaan eritrosit individu AB.'},
+  {sec:'C',label:'Genetics',q:'Dalam analisis pedigree, jika kedua orang tua tidak menunjukkan gejala tetapi memiliki anak yang sakit, pola pewarisan yang paling mungkin adalah:',opts:['Autosomal dominan','Autosomal resesif','X-linked dominan','Mitokondrial'],ans:1,exp:'Orang tua fenotipe normal dengan anak yang sakit menunjukkan kedua orang tua adalah carrier (Aa × Aa). Rasio keturunan 3:1 (normal:sakit), pola autosomal resesif.'},
+  {sec:'C',label:'Genetics',q:'Frekuensi alel p dan q dalam suatu populasi Hardy–Weinberg memenuhi syarat jika nilai p + q = 1. Jika frekuensi genotipe AA = 0.36, berapakah frekuensi alel resesif (q)?',opts:['0.36','0.40','0.60','0.64'],ans:1,exp:'Dalam H-W: p² = 0.36, maka p = 0.6. Karena p + q = 1, maka q = 0.4.'},
+  {sec:'C',label:'Genetics',q:'Epigenetik berbeda dari mutasi genetik karena perubahan epigenetik:',opts:['Mengubah urutan basa DNA secara permanen','Tidak mengubah urutan DNA tetapi memodifikasi ekspresi gen','Hanya terjadi pada sel germinal','Selalu diwariskan ke semua keturunan'],ans:1,exp:'Epigenetik melibatkan modifikasi kimia pada DNA (metilasi) atau histon (asetilasi, metilasi) yang mengubah aksesibilitas kromatin tanpa mengubah urutan DNA. Perubahan ini dapat bersifat reversibel dan kadang diwariskan.'},
+  {sec:'C',label:'Genetics',q:'Penyakit Down syndrome (trisomi 21) paling sering terjadi akibat:',opts:['Translokasi Robertson','Non-disjunction saat meiosis I','Delesi kromosom 21','Inversi perisenter'],ans:1,exp:'Sekitar 95% kasus trisomi 21 disebabkan non-disjunction — kegagalan pemisahan kromosom homolog saat meiosis I (atau kromatid saudara saat meiosis II) sehingga gamet memiliki dua salinan kromosom 21.'},
+
+  // D. PLANT BIOLOGY (6 soal)
+  {sec:'D',label:'Plant Biology',q:'Jaringan xilem pada tumbuhan berperan dalam transpor air dari akar ke daun. Gaya utama yang menggerakkan air ke atas melalui xilem adalah:',opts:['Tekanan akar (root pressure)','Tegangan-kohesi akibat transpirasi','Osmosis di sel mesofil','Tekanan turgor sel penjaga'],ans:1,exp:'Teori tegangan-kohesi (cohesion-tension theory): transpirasi menciptakan tegangan di daun → tegangan ditransmisikan melalui kolom air yang kohesif → air tertarik dari akar. Ini mekanisme utama pada tumbuhan dewasa.'},
+  {sec:'D',label:'Plant Biology',q:'Auksin (IAA) menyebabkan pemanjangan sel tanaman dengan cara:',opts:['Menghambat sintesis dinding sel baru','Mengaktifkan H⁺-ATPase → pengasaman dinding → pelenturan dinding (acid growth)','Meningkatkan tekanan osmotik vakuola secara langsung','Menghambat sintesis etilen di sel target'],ans:1,exp:'Auksin mengaktifkan H⁺-ATPase di membran plasma → ion H⁺ dipompa ke dinding sel → pH dinding turun → ekspansin aktif → ikatan silang dinding melonggar → sel memanjang secara osmotik.'},
+  {sec:'D',label:'Plant Biology',q:'Reaksi gelap fotosintesis (siklus Calvin) terjadi di:',opts:['Membran tilakoid','Stroma kloroplas','Matriks mitokondria','Sitoplasma'],ans:1,exp:'Siklus Calvin berlangsung di stroma kloroplas. CO₂ difiksasi oleh enzim RuBisCO, menggunakan ATP dan NADPH dari reaksi terang, menghasilkan gliseraldehida-3-fosfat (G3P).'},
+  {sec:'D',label:'Plant Biology',q:'Hormon tumbuhan yang berperan dalam dormansi biji dan penutupan stomata saat kekurangan air adalah:',opts:['Giberelin','Sitokinin','Asam absisat (ABA)','Etilen'],ans:2,exp:'ABA disebut "hormon stres". Pada kekurangan air, ABA diproduksi di mesofil, ditransport ke sel penjaga → menutup stomata (via pelepasan ion K⁺ dan air). ABA juga mempertahankan dormansi biji.'},
+  {sec:'D',label:'Plant Biology',q:'Pada perkecambahan biji, enzim amilase diproduksi oleh lapisan aleuron akibat stimulasi oleh:',opts:['Auksin','Asam absisat','Giberelin','Brassinosteroid'],ans:2,exp:'Giberelin (GA) yang diproduksi oleh embrio berdifusi ke lapisan aleuron → menginduksi sintesis α-amilase → amilase mendegradasi pati endosperma → glukosa tersedia untuk pertumbuhan embrio.'},
+  {sec:'D',label:'Plant Biology',q:'Tumbuhan CAM (Crassulacean Acid Metabolism) beradaptasi terhadap kekeringan dengan cara:',opts:['Membuka stomata di siang hari dan menutup malam hari','Membuka stomata malam hari, menyimpan CO₂ sebagai malat, fiksasi siang hari','Tidak memiliki mesofil palisade','Menggugurkan daun saat musim kering'],ans:1,exp:'Tumbuhan CAM (kaktus, agave) membuka stomata malam hari → CO₂ difiksasi oleh PEP karboksilase → malat disimpan di vakuola. Siang hari stomata tertutup, malat dirilis → CO₂ digunakan siklus Calvin. Ini mengurangi kehilangan air.'},
+
+  // E. ANIMAL PHYSIOLOGY (10 soal)
+  {sec:'E',label:'Animal Physiology',q:'Enzim pencernaan pepsin aktif di lambung pada pH asam. Jika pH lambung meningkat menjadi netral, maka:',opts:['Pepsin bekerja lebih efisien','Pepsin mengalami denaturasi parsial dan inaktivasi','Pepsin berubah menjadi pepsinogen','Pepsin dipindahkan ke usus halus'],ans:1,exp:'Pepsin optimal pada pH 1.5–2. Jika pH naik ke netral, konformasi sisi aktif pepsin berubah (inaktivasi). Pepsinogen (prekursor inaktif) yang baru dikeluarkan juga tidak dapat diaktifkan oleh HCl.'},
+  {sec:'E',label:'Animal Physiology',q:'Kurva disosiasi oksihemoglobin bergeser ke kanan (efek Bohr) ketika:',opts:['pH meningkat dan suhu menurun','PCO₂ meningkat dan pH menurun','Konsentrasi O₂ meningkat','2,3-BPG menurun'],ans:1,exp:'Efek Bohr: CO₂ tinggi → H₂CO₃ → H⁺ naik → pH turun → Hb melepas O₂ lebih mudah. Ini penting di jaringan aktif yang menghasilkan banyak CO₂ sehingga O₂ dilepas tepat di sana.'},
+  {sec:'E',label:'Animal Physiology',q:'Nodus sinoatrial (SA node) disebut "pacemaker" jantung karena:',opts:['Terletak di septum interventrikular','Menghasilkan impuls listrik spontan dan ritmis','Menerima sinyal langsung dari n. vagus tanpa delay','Hanya aktif saat tekanan darah turun'],ans:1,exp:'SA node memiliki sel otoritmik yang mengalami depolarisasi spontan (funny current, If) menciptakan potensial aksi ~60–100×/menit. Ini disebarkan ke AV node → berkas His → serat Purkinje.'},
+  {sec:'E',label:'Animal Physiology',q:'Nefron ginjal menyaring sekitar 180 L/hari filtrat glomerulus, tetapi hanya ~1.5 L urin yang dihasilkan. Ini karena:',opts:['Sebagian besar filtrat diekskresi langsung','99% filtrat direabsorpsi di tubulus dan duktus kolektivus','Glomerulus hanya menyaring 1.5 L per hari','Urea tidak masuk ke filtrat glomerulus'],ans:1,exp:'Proses reabsorpsi di tubulus proksimal (~65%), lengkung Henle, tubulus distal, dan duktus kolektivus mengembalikan air, glukosa, asam amino, ion ke darah. Hanya ~1% filtrat menjadi urin.'},
+  {sec:'E',label:'Animal Physiology',q:'Potensial aksi pada neuron bersifat "all-or-none". Hal ini berarti:',opts:['Amplitudo potensial aksi berubah sesuai kekuatan stimulus','Potensial aksi hanya terjadi jika stimulus mencapai ambang batas, dan amplitudonya selalu sama','Semua neuron di tubuh menghasilkan potensial aksi bersamaan','Potensial aksi tidak dapat merambat ke sinapsis'],ans:1,exp:'Jika stimulus di bawah ambang (threshold), tidak ada potensial aksi. Jika mencapai atau melebihi threshold, potensial aksi penuh terbentuk dengan amplitudo konstan ~+40 mV. Kekuatan sinyal dikode oleh frekuensi potensial aksi, bukan amplitudo.'},
+  {sec:'E',label:'Animal Physiology',q:'Hormon insulin dan glukagon bekerja secara antagonis dalam regulasi kadar glukosa darah. Sel penghasil keduanya berada di:',opts:['Korteks adrenal','Pankreas (pulau Langerhans)','Hati','Kelenjar pituitari'],ans:1,exp:'Sel β pankreas menghasilkan insulin (menurunkan glukosa), sel α menghasilkan glukagon (meningkatkan glukosa). Keduanya ada di pulau Langerhans pankreas.'},
+  {sec:'E',label:'Animal Physiology',q:'Vaksin mRNA COVID-19 bekerja dengan cara:',opts:['Menyuntikkan protein spike langsung ke sel','Menginstruksikan ribosom sel untuk membuat protein spike → respons imun adaptif','Membawa DNA virus ke nukleus untuk ekspresi gen','Mengaktifkan limfosit B secara langsung tanpa antigen'],ans:1,exp:'mRNA vaksin masuk ke sitoplasma → ribosom menerjemahkan instruksi → protein spike diproduksi → dipresentasikan ke sel imun → limfosit B dan T tersensitisasi → memori imun terbentuk. mRNA tidak masuk ke nukleus.'},
+  {sec:'E',label:'Animal Physiology',q:'Mekanisme utama otot rangka berkontraksi melibatkan jembatan silang antara aktin dan miosin. Pelepasan jembatan silang memerlukan:',opts:['Ca²⁺ bebas di sitoplasma','ATP yang berikatan ke kepala miosin','Troponin yang terikat tropomosin','ADP yang dilepas dari situs aktif'],ans:1,exp:'Setelah stroke kuasa, kepala miosin berikatan kuat ke aktin. ATP baru harus berikatan ke kepala miosin untuk memecah ikatan ini (detachment). Inilah mengapa rigor mortis terjadi saat ATP habis pasca mortem.'},
+  {sec:'E',label:'Animal Physiology',q:'Respons imun humoral melibatkan sel B yang berdiferensiasi menjadi sel plasma. Produk utama sel plasma adalah:',opts:['Interleukin-2','Interferon-γ','Antibodi (imunoglobulin)','Perforin'],ans:2,exp:'Sel plasma (plasmosit) adalah sel B teraktivasi yang mengkhususkan diri memproduksi antibodi dalam jumlah besar. Satu sel plasma dapat menghasilkan ribuan antibodi per detik.'},
+  {sec:'E',label:'Animal Physiology',q:'Selama spermatogenesis, spermatosit primer (2n) membelah melalui meiosis I menghasilkan:',opts:['Empat spermatid haploid langsung','Dua spermatosit sekunder haploid','Dua spermatid diploid','Empat spermatozoa diploid'],ans:1,exp:'Meiosis I dari spermatosit primer (2n) → dua spermatosit sekunder (n). Kemudian meiosis II dari setiap spermatosit sekunder → dua spermatid (n) → total empat spermatid per spermatosit primer.'},
+
+  // F. ECOLOGY (6 soal)
+  {sec:'F',label:'Ecology',q:'Efisiensi ekologi rata-rata antar tingkat trofik adalah ~10%. Jika biomassa produsen = 10.000 kg, berapa biomassa karnivora sekunder (tingkat trofik 3)?',opts:['1.000 kg','100 kg','10 kg','1 kg'],ans:2,exp:'Produsen (T1) = 10.000 kg. Herbivora (T2) = 10.000 × 10% = 1.000 kg. Karnivora primer (T3) = 1.000 × 10% = 100 kg. Karnivora sekunder (T4) = 100 × 10% = 10 kg.'},
+  {sec:'F',label:'Ecology',q:'Siklus nitrogen melibatkan fiksasi N₂. Kelompok organisme yang mampu melakukan fiksasi nitrogen secara biologis adalah:',opts:['Semua bakteri tanah','Prokariota tertentu (Rhizobium, Azotobacter, Cyanobacteria)','Fungi mikoriza','Tanaman legum secara mandiri'],ans:1,exp:'Hanya prokariota tertentu yang memiliki enzim nitrogenase untuk mengubah N₂ → NH₃. Rhizobium bersimbiosis dengan akar legum, Azotobacter hidup bebas di tanah, Cyanobacteria di air dan tanah.'},
+  {sec:'F',label:'Ecology',q:'Keystone species adalah spesies yang:',opts:['Memiliki biomassa terbesar di ekosistem','Pengaruhnya terhadap ekosistem jauh lebih besar dari proporsi biomassanya','Hanya ditemukan di satu wilayah geografis','Merupakan puncak rantai makanan'],ans:1,exp:'Keystone species (mis. bintang laut Pisaster) memiliki dampak ekologis tidak proporsional — jika dihilangkan, struktur komunitas berubah drastis. Bukan tentang biomassa tapi tentang peran fungsional.'},
+  {sec:'F',label:'Ecology',q:'Fenomena eutrofikasi pada danau akibat limpasan pupuk pertanian terutama disebabkan oleh kelebihan:',opts:['Pestisida organoklorin','Nitrogen dan fosfor yang menstimulasi pertumbuhan alga berlebih','Karbon dioksida terlarut','Logam berat dari pupuk mineral'],ans:1,exp:'Nitrogen dan fosfor adalah nutrien pembatas di ekosistem air tawar. Kelebihannya memicu blooming alga → alga mati dan terdekomposisi → BOD meningkat → O₂ terlarut habis → zona hipoksik (dead zone).'},
+  {sec:'F',label:'Ecology',q:'Predasi Lotka-Volterra mendeskripsikan hubungan osilasi antara populasi predator dan mangsa. Ketika populasi mangsa memuncak, yang terjadi selanjutnya adalah:',opts:['Predator langsung menurun','Predator meningkat karena sumber makanan berlimpah','Populasi mangsa terus meningkat tak terbatas','Predator juga langsung memuncak bersamaan'],ans:1,exp:'Model Lotka-Volterra: mangsa tinggi → makanan berlimpah untuk predator → predator meningkat → tekanan predasi naik → mangsa menurun → predator akhirnya menurun karena kekurangan makanan. Osilasi terus berulang.'},
+  {sec:'F',label:'Ecology',q:'Perubahan iklim global menyebabkan pemutihan karang (coral bleaching) melalui mekanisme:',opts:['Salinitas air laut meningkat langsung membunuh karang','Suhu air naik → karang mengusir zooxanthellae → kehilangan pigmen dan sumber nutrisi','Pengasaman laut membekukan polip karang','CO₂ terlarut memblok fotosintesis zooxanthellae'],ans:1,exp:'Zooxanthellae (alga simbiotik) hidup di jaringan karang, menyediakan 90% energi karang. Kenaikan suhu 1–2°C di atas ambang → karang mengusir zooxanthellae → putih, lemas, rentan mati. Jika suhu normal kembali, karang bisa pulih.'},
+
+  // G. EVOLUTION (4 soal)
+  {sec:'G',label:'Evolution',q:'Spesiasi allopatrik terjadi ketika:',opts:['Dua populasi berevolusi dalam satu wilayah geografis yang sama','Populasi terpisah oleh hambatan geografis sehingga tidak ada aliran gen','Satu spesies berevolusi menjadi dua tanpa isolasi reproduksi','Hibridisasi antara dua spesies menciptakan spesies baru'],ans:1,exp:'Spesiasi allopatrik: isolasi geografis (gunung, laut, glasier) → populasi terisolasi mengalami seleksi alam dan genetic drift berbeda → divergensi genetik → isolasi reproduksi → spesies baru. Contoh: finch Darwin di Kepulauan Galapagos.'},
+  {sec:'G',label:'Evolution',q:'Bukti evolusi dari homologi molekuler menunjukkan bahwa:',opts:['Semua organisme memiliki bentuk fisik yang sama','Spesies yang berbeda memiliki gen atau protein dengan urutan serupa mencerminkan nenek moyang bersama','Fosil menunjukkan transisi bertahap antar spesies','Embrio semua vertebrata identik pada tahap awal'],ans:1,exp:'Homologi molekuler: gen seperti sitokrom c, ribosomal RNA, atau Hox gene yang ditemukan di berbagai organisme dengan urutan yang sangat mirip menunjukkan diturunkan dari nenek moyang bersama (common ancestor).'},
+  {sec:'G',label:'Evolution',q:'Seleksi alam bekerja pada:',opts:['Genotipe individual secara langsung','Fenotipe individual, yang mencerminkan variasi genetik','Populasi secara keseluruhan sebagai satu unit','Spesies untuk kebaikan spesies tersebut'],ans:1,exp:'Seleksi alam bekerja pada fenotipe yang terobservasi. Individu dengan fenotipe lebih adaptif memiliki fitness lebih tinggi → lebih banyak keturunan → alel yang mengkode fenotipe adaptif meningkat frekuensinya di populasi.'},
+  {sec:'G',label:'Evolution',q:'Pada filogeni kladistik, kelompok yang mencakup satu nenek moyang bersama dan SEMUA keturunannya disebut:',opts:['Parafili','Polifili','Monofili (klad)','Plesiomorfik'],ans:2,exp:'Monofili (klade): nenek moyang + semua keturunannya. Parafili: nenek moyang + sebagian keturunan. Polifili: dari beberapa nenek moyang berbeda. Kladistika modern menghindari kelompok para- dan polifili.'},
+
+  // H. MICROBIOLOGY (6 soal)
+  {sec:'H',label:'Microbiology',q:'Mekanisme resistensi antibiotik yang paling umum terhadap beta-laktam (penisilin, sefalosporin) adalah:',opts:['Perubahan target PBP saja','Produksi enzim beta-laktamase yang menghidrolisis cincin beta-laktam','Pengurangan permeabilitas membran luar saja','Pompa efflux tanpa mekanisme lain'],ans:1,exp:'Beta-laktamase adalah enzim yang memutus cincin beta-laktam → antibiotik tidak aktif. Ini mekanisme utama resistensi. MRSA menggunakan PBP2a (target PBP yang dimodifikasi). Kedua mekanisme bisa bersamaan.'},
+  {sec:'H',label:'Microbiology',q:'Virus SARS-CoV-2 menginfeksi sel manusia melalui pengikatan protein spike ke reseptor:',opts:['CD4','Reseptor ACE2','TLR4 (Toll-like receptor 4)','EGFR (epidermal growth factor receptor)'],ans:1,exp:'Protein spike S1 SARS-CoV-2 berikatan ke ACE2 (Angiotensin Converting Enzyme 2) yang banyak diekspresikan di sel epitel paru, usus, dan pembuluh darah. Kemudian TMPRSS2 mempriming spike → fusi membran → masuknya RNA virus.'},
+  {sec:'H',label:'Microbiology',q:'Gram-positif berbeda dari Gram-negatif dalam struktur dinding sel karena:',opts:['Gram-positif memiliki membran luar (outer membrane) dengan LPS','Gram-positif memiliki lapisan peptidoglikan yang lebih tebal tanpa membran luar','Gram-negatif tidak memiliki peptidoglikan','Gram-positif selalu bersifat patogen'],ans:1,exp:'Gram-positif: peptidoglikan tebal (20–80 nm) tanpa membran luar → menyerap kristal violet → biru/ungu. Gram-negatif: peptidoglikan tipis (2–7 nm) + membran luar dengan LPS → merah setelah counterstain safranin.'},
+  {sec:'H',label:'Microbiology',q:'Pertumbuhan bakteri dalam kultur cair mengikuti kurva sigmoid. Fase kematian (death phase) terjadi karena:',opts:['Bakteri berhenti bermitosis','Nutrien habis dan akumulasi produk toksik membunuh sel lebih cepat dari yang baru terbentuk','Semua bakteri bersporulasi','Suhu kultur otomatis menurun'],ans:1,exp:'Pada fase kematian, nutrien sangat terbatas dan produk metabolisme toksik menumpuk → laju kematian melebihi laju pertumbuhan → jumlah sel hidup turun. Pada skala log, ini tampak sebagai penurunan linier.'},
+  {sec:'H',label:'Microbiology',q:'Prion (agen penyakit BSE/CJD) berbeda dari semua patogen lain karena:',opts:['Mengandung RNA double-stranded','Tidak mengandung asam nukleat, hanya protein yang salah lipat (misfolded PrPSc)','Memiliki kapsid protein dan membran lipid','Mereplikasi hanya di nukleus sel host'],ans:1,exp:'Prion adalah protein PrP yang terlipat abnormal (PrPSc). Kontak dengan PrPC normal → menginduksi konformasi abnormal pada PrPC → agregasi → neurodegenerasi. Tidak ada DNA/RNA — ini revolusioner dalam biologi.'},
+  {sec:'H',label:'Microbiology',q:'Vaksin subunit berbeda dari vaksin attenuated karena vaksin subunit:',opts:['Menggunakan virus hidup yang dilemahkan','Hanya mengandung protein atau fragmen antigen tertentu dari patogen','Membutuhkan booster lebih jarang','Selalu lebih efektif dari vaksin attenuated'],ans:1,exp:'Vaksin subunit menggunakan satu atau beberapa protein antigen spesifik (mis. protein HBsAg hepatitis B, protein spike COVID-19) tanpa agen infeksius. Lebih aman tapi sering memerlukan adjuvan dan booster karena respons imunnya lebih lemah.'},
+
+  // I. ETHOLOGY (4 soal)
+  {sec:'I',label:'Ethology',q:'Perilaku imprinting (jejak) pada anak angsa yang mengikuti objek bergerak pertama yang dilihatnya adalah contoh:',opts:['Belajar asosiatif (classical conditioning)','Belajar terbatas periode kritis (critical period learning)','Perilaku bawaan (innate behavior)','Habituasi'],ans:1,exp:'Imprinting adalah bentuk belajar yang hanya terjadi dalam jendela waktu kritis (critical period). Ini pertama dideskripsikan oleh Konrad Lorenz pada angsa. Berbeda dari perilaku bawaan karena melibatkan pengalaman spesifik.'},
+  {sec:'I',label:'Ethology',q:'Tarian waggle (waggle dance) lebah madu berkomunikasi tentang:',opts:['Status reproduksi ratu lebah','Arah dan jarak sumber makanan relatif terhadap posisi matahari','Keberadaan predator di dekat sarang','Sinyal rekrutmen lebah pekerja baru'],ans:1,exp:'Karl von Frisch menemukan waggle dance mengkomunikasikan arah (sudut terhadap matahari) dan jarak (durasi waggle run) sumber nektar. Ini bentuk komunikasi simbolik paling kompleks pada serangga.'},
+  {sec:'I',label:'Ethology',q:'Altruisme pada sosial serangga (semut, lebah) dapat dijelaskan oleh konsep:',opts:['Seleksi kelompok murni','Kin selection (inclusive fitness) — membantu kerabat meningkatkan fitness inklusif','Resiprok altruisme dengan kontrak sosial','Manipulasi genetik oleh ratu'],ans:1,exp:'Kin selection (Hamilton): membantu kerabat meningkatkan penyebaran gen bersama (inclusive fitness). Pada Hymenoptera (semut/lebah), pekerja betina berbagi 75% gen dengan saudara (haplodiploidi) → lebih "menguntungkan" merawat saudara daripada beranak sendiri.'},
+  {sec:'I',label:'Ethology',q:'Migrasi burung menggunakan berbagai mekanisme navigasi. Mekanisme yang bergantung pada medan magnet bumi disebut:',opts:['Navigasi bintang (stellar navigation)','Magnetoresepsi (magnetoreception)','Orientasi matahari (sun compass)','Navigasi berbasis bau (olfactory navigation)'],ans:1,exp:'Magnetoresepsi: beberapa burung (robin Eropa, merpati) memiliki magnetit di paruh atau kriptokrom di mata yang mendeteksi medan magnet bumi → menentukan arah utara-selatan. Kombinasi dengan kompas matahari dan bintang untuk migrasi akurat.'},
+
+  // J. BIOSYSTEMATICS (6 soal)
+  {sec:'J',label:'Biosystematics',q:'Nama ilmiah Homo sapiens mengikuti tata nama binomial. "Homo" merupakan nama:',opts:['Spesies','Genus','Famili','Ordo'],ans:1,exp:'Sistem binomial Linnaeus: nama pertama (kapital) = genus, nama kedua (huruf kecil) = spesies. Jadi Homo = genus, sapiens = epithet spesies. Nama ilmiah ditulis italic atau digaris bawah.'},
+  {sec:'J',label:'Biosystematics',q:'Domain adalah tingkat taksonomi tertinggi. Ketiga domain kehidupan adalah:',opts:['Plantae, Animalia, Protista','Archaea, Bacteria, Eukarya','Prokariota, Eukarya, Virus','Monera, Protista, Eukarya'],ans:1,exp:'Sistem tiga domain (Carl Woese, berdasarkan rRNA 16S/18S): Bacteria, Archaea, Eukarya. Archaea berbeda dari Bacteria dalam lipid membran, dinding sel, dan mesin transkripsi/translasi yang lebih mirip Eukarya.'},
+  {sec:'J',label:'Biosystematics',q:'Kladistika modern menggunakan synapomorphy untuk membangun pohon filogenetik. Synapomorphy adalah:',opts:['Karakter primitif yang diwarisi dari nenek moyang jauh','Karakter turunan yang dimiliki bersama oleh dua atau lebih takson dari nenek moyang langsung','Kesamaan bentuk akibat evolusi konvergen','Karakter yang hilang pada semua keturunan'],ans:1,exp:'Synapomorphy (karakter turunan bersama): ciri yang berevolusi pada nenek moyang bersama dan diwarisi oleh semua keturunannya → mendefinisikan klade. Berbeda dari plesiomorphy (karakter primitif) dan homoplasi (konvergen).'},
+  {sec:'J',label:'Biosystematics',q:'Kunci dikotomis identifikasi organisme bekerja dengan cara:',opts:['Membandingkan foto dengan database visual','Menyajikan serangkaian pilihan berpasangan berurutan hingga spesies teridentifikasi','Menganalisis DNA untuk menentukan genus','Menghitung jumlah morfologi dan mencari yang paling banyak cocok'],ans:1,exp:'Kunci dikotomis menyajikan dua pernyataan berlawanan per langkah. Pengguna memilih yang cocok → diarahkan ke langkah berikutnya → sampai nama spesies. Ini metode identifikasi tradisional yang masih digunakan luas.'},
+  {sec:'J',label:'Biosystematics',q:'Reptilia dalam taksonomi tradisional dianggap parafili karena:',opts:['Reptilia mencakup semua keturunan nenek moyang amniota','Reptilia tidak mencakup burung, padahal burung berevolusi dari dinosaurus (reptilia)','Reptilia sudah punah seluruhnya','Reptilia dan amfibi satu kelompok monofiletik'],ans:1,exp:'Reptilia tradisional (buaya, kadal, ular, kura-kura) tidak menyertakan burung. Namun filogeni modern menunjukkan burung adalah dinosaurus yang selamat → Reptilia tanpa burung adalah kelompok parafili. Klade Reptilia yang benar harus mencakup burung.'},
+  {sec:'J',label:'Biosystematics',q:'Bakteri metanogen yang hidup di lingkungan ekstrem seperti kawah gunung berapi termasuk dalam domain:',opts:['Bacteria','Eukarya','Archaea','Fungi'],ans:2,exp:'Metanogen dan ekstremofil lain (halofilik, termofilik) termasuk Archaea. Archaea memiliki lipid membran isoprenoid ether (bukan ester seperti Bacteria/Eukarya) yang stabil di kondisi ekstrem.'},
+];
+
+// ===================== CASE STUDIES =====================
+const CASES = [
+  {
+    id:0, pillar:1, pillarLabel:'Kesehatan & Biomedis',
+    title:'Resistensi Antibiotik (AMR)',
+    desc:'Ancaman global "pandemik senyap" — bakteri resistan multi-obat',
+    tags:['Pilar 1','High Priority','One Health'],
+    bg:'case-card pillar-1',
+    intro:'Resistensi Antimikroba (AMR) membunuh ~1,27 juta orang/tahun (2019, The Lancet). WHO menyebutnya sebagai salah satu 10 ancaman kesehatan global terbesar.',
+    mechanism:[
+      '<strong>Produksi enzim perusak antibiotik</strong>: beta-laktamase (ESBL, KPC) menghidrolisis cincin beta-laktam.',
+      '<strong>Modifikasi target</strong>: MRSA menghasilkan PBP2a yang tidak terikat methicillin. M. tuberculosis mutasi gen katG/rpoB → resistan INH/rifampisin.',
+      '<strong>Pompa efflux</strong>: protein membran memompa antibiotik keluar sel sebelum bekerja.',
+      '<strong>Perubahan permeabilitas</strong>: hilangnya porin (OmpF) mengurangi masuknya antibiotik.',
+      '<strong>Transfer gen horizontal</strong>: plasmid konjugatif, transposon → penyebaran antar spesies.',
+    ],
+    solutions:[
+      '<strong>Antibiotic Stewardship Program (ASP)</strong>: penggunaan antibiotik rasional, resep dokter wajib.',
+      '<strong>One Health approach</strong>: integrasi kesehatan manusia, hewan, lingkungan — kurangi antibiotik di peternakan.',
+      '<strong>Pengembangan antibiotik baru</strong>: inhibitor beta-laktamase (clavulanate), antibiotik baru kelas teixobactin.',
+      '<strong>Fage terapi (Phage therapy)</strong>: virus bakteriofag spesifik membunuh bakteri target.',
+      '<strong>Vaksin pencegahan</strong>: vaksin pneumokok, meningitis mengurangi kebutuhan antibiotik.',
+      '<strong>Diagnostik cepat</strong>: PCR, MALDI-TOF mengidentifikasi patogen dalam jam, bukan hari.',
+    ],
+    slides:[
+      {title:'Slide 1: Pendahuluan & Statistik',body:'Data kematian AMR global (1.27 juta/tahun), proyeksi 2050 (10 juta/tahun). Definisi AMR, MDR, XDR. Contoh bakteri ESKAPE (Enterococcus, Staphylococcus, Klebsiella, Acinetobacter, Pseudomonas, Enterobacter).'},
+      {title:'Slide 2: Mekanisme Resistensi',body:'Diagram visual 4 mekanisme utama: enzim perusak, modifikasi target, pompa efflux, perubahan permeabilitas. Tekankan plasmid R sebagai vektor transfer horizontal.'},
+      {title:'Slide 3: Seleksi Darwinian AMR',body:'Analogi evolusi: tekanan seleksi antibiotik → bakteri sensitif mati → bakteri resistan bertahan & bereproduksi. Kurva populasi. Peran penggunaan antibiotik tidak tepat.'},
+      {title:'Slide 4: One Health Framework',body:'Triad manusia–hewan–lingkungan. Data 70% antibiotik digunakan di peternakan. Resistensi zoonosis (MRSA ST398 babi). Program GLASS WHO.'},
+      {title:'Slide 5: Solusi Inovatif',body:'Fage terapi (kasus pertama sukses: 2019, UC San Diego). CRISPR antimikroba sebagai "guided missile". Vaksin antibakteri baru. ASP berbasis AI.'},
+      {title:'Slide 6: Implementasi Indonesia',body:'Peta resistansi ESBL Indonesia (>60% E. coli resistan). Program PPRA (Pengendalian Penggunaan Resistensi Antimikroba). Regulasi pembatasan OTC antibiotik.'},
+      {title:'Slide 7: Kesimpulan & SDGs',body:'AMR mengancam SDG 3 (Good Health). Solusi: stewardship + inovasi + koordinasi global. Call to action: peran mahasiswa biologi.'},
+    ]
+  },
+  {
+    id:1, pillar:1, pillarLabel:'Kesehatan & Biomedis',
+    title:'Pandemi Influenza & Emerging Virus',
+    desc:'H5N1, zoonosis, respons imun, vaksin universal, epidemiologi',
+    tags:['Pilar 1','Zoonosis','Virologi'],
+    bg:'case-card pillar-1',
+    intro:'Influenza A subtipe H5N1 memiliki case fatality rate >60% pada manusia (WHO). Pandemi berikutnya dianggap hanya masalah waktu.',
+    mechanism:[
+      '<strong>Variasi antigenik influenza</strong>: Antigenic drift (mutasi titik di HA/NA) → perubahan kecil bertahap. Antigenic shift (reassortment segmen RNA) → virus baru yang imun populasi belum kenal → pandemi.',
+      '<strong>Mekanisme zoonosis H5N1</strong>: Unggas aquatik → unggas domestik → manusia (via kontak langsung). Reseptor α2-3 sialic acid (burung) vs α2-6 (manusia). H5N1 menginfeksi manusia tapi belum efisien antar-manusia.',
+      '<strong>Respons imun</strong>: Innate (interferon tipe I, NK cell) → Adaptive (sel T sitotoksik membunuh sel terinfeksi, antibodi anti-HA menetralisir). Cytokine storm pada H5N1 parah.',
+      '<strong>Peran TMPRSS2 dan HA cleavage</strong>: HA harus dibelah oleh protease host untuk aktif. H5N1 highly pathogenic memiliki polybasic cleavage site → bisa dibelah di banyak jaringan.',
+    ],
+    solutions:[
+      '<strong>Vaksin universal influenza</strong>: menarget hemagglutinin stem (konserved) bukan head (variabel). Kandidat: FluBlok, MVA-NP, mRNA-1010.',
+      '<strong>Antiviral</strong>: Oseltamivir (Tamiflu) menghambat neuraminidase. Baloxavir menghambat cap-dependent endonuclease.',
+      '<strong>Sistem surveilans global</strong>: GISRS WHO, FluNet. Deteksi dini di unggas sebelum spilover ke manusia.',
+      '<strong>One Health surveillance</strong>: monitoring burung liar, pasar unggas hidup (wet market), peternakan.',
+      '<strong>Kesiapan pandemi</strong>: platform vaksin mRNA (bisa diproduksi cepat dalam 100 hari), stockpiling antiviral.',
+    ],
+    slides:[
+      {title:'Slide 1: Sejarah Pandemi Influenza',body:'1918 (H1N1, 50-100 juta mati), 1957 (H2N2), 1968 (H3N2), 2009 (H1N1pdm). Pola perulangan. Ancaman H5N1 dan H7N9 saat ini.'},
+      {title:'Slide 2: Struktur Virus & Variasi Antigen',body:'Diagram RNA segmen (8 segmen). HA dan NA sebagai antigen utama. Drift vs shift. Reassortment menciptakan virus novel.'},
+      {title:'Slide 3: Mekanisme Zoonosis',body:'Reservoir burung aquatik. Reseptor sialic acid (α2-3 vs α2-6). Adaptasi virus untuk transmisi manusia-ke-manusia. Risk factors paparan H5N1.'},
+      {title:'Slide 4: Respons Imun & Patogenesis',body:'Innate → adaptive. Cytokine storm H5N1. Mengapa H5N1 lebih mematikan dari seasonal flu.'},
+      {title:'Slide 5: Vaksin & Antiviral Masa Depan',body:'Platform mRNA (kecepatan, fleksibilitas). Universal flu vaccine strategy. Tantangan immunosenescence pada lansia.'},
+      {title:'Slide 6: Kesiapan Indonesia',body:'H5N1 di Indonesia (kasus manusia tertinggi di dunia, 2005-2009). Produksi vaksin dalam negeri (Bio Farma). Program PDSR di peternakan.'},
+      {title:'Slide 7: Kesimpulan',body:'Next pandemic preparedness: early detection + rapid vaccine + global coordination. Lesson learned COVID-19.'},
+    ]
+  },
+  {
+    id:2, pillar:1, pillarLabel:'Kesehatan & Biomedis',
+    title:'Kanker & Terapi Target',
+    desc:'Onkogenesis, imunoterapi, CRISPR, antibodi monoklonal',
+    tags:['Pilar 1','Onkologi','Bioteknologi'],
+    bg:'case-card pillar-1',
+    intro:'Kanker adalah penyebab kematian kedua dunia. Terapi target revolusioner menggantikan kemoterapi konvensional yang tidak selektif.',
+    mechanism:[
+      '<strong>Onkogenesis</strong>: mutasi proto-onkogen → onkogen (mis. RAS gain-of-function). Inaktivasi tumor suppressor (TP53, RB1). Hallmarks of cancer (Hanahan & Weinberg): proliferasi tak terkontrol, menghindari apoptosis, angiogenesis, invasi, metastasis, reprogramming metabolisme.',
+      '<strong>Checkpoint imun</strong>: PD-1/PD-L1 pathway — sel kanker mengekspresikan PD-L1 → mengikat PD-1 di T cell → T cell exhausted → tumor lolos dari imunitas.',
+      '<strong>Tumor microenvironment</strong>: sel kanker merekrut regulatory T cell (Treg), makrofag M2 → imunosupresif.',
+    ],
+    solutions:[
+      '<strong>Antibodi monoklonal (mAb)</strong>: Trastuzumab (HER2+ breast cancer), Cetuximab (EGFR+ colorectal). Bekerja memblok reseptor onkogenik.',
+      '<strong>Immune checkpoint inhibitors</strong>: Anti-PD-1 (Pembrolizumab/Keytruda), Anti-CTLA-4 (Ipilimumab). Melepas rem imunitas → T cell menyerang tumor.',
+      '<strong>CAR-T cell therapy</strong>: T cell pasien direkayasa dengan Chimeric Antigen Receptor → mengenali antigen tumor spesifik (CD19 untuk leukemia limfoid).',
+      '<strong>CRISPR dalam terapi kanker</strong>: Knockout gen PD-1 di T cell sebelum reinfusi, knockout onkogen, koreksi mutasi TP53.',
+      '<strong>mRNA kanker</strong>: Vaksin kanker personal berbasis neoantigen mRNA (Moderna/MSD — RO7198457 untuk melanoma).',
+    ],
+    slides:[
+      {title:'Slide 1: Epidemiologi Kanker Global',body:'Insiden global, top 5 kanker, tren di Indonesia. Definisi kanker vs tumor jinak.'},
+      {title:'Slide 2: Mekanisme Onkogenesis',body:'Proto-onkogen vs onkogen. Tumor suppressor gene. Multi-hit hypothesis. Driver vs passenger mutation.'},
+      {title:'Slide 3: Hallmarks of Cancer',body:'8 hallmark Hanahan & Weinberg (2011). Diagram visual. Setiap hallmark = target terapi potensial.'},
+      {title:'Slide 4: Imunoterapi & Checkpoint',body:'PD-1/PD-L1 mekanisme. Anti-PD-1 clinical success (melanoma survival rate). CAR-T untuk hematologi.'},
+      {title:'Slide 5: CRISPR & Terapi Gen',body:'Aplikasi CRISPR: KO PD-1, koreksi mutasi BRCA. Tantangan off-target effects, delivery.'},
+      {title:'Slide 6: Vaksin Kanker Personal',body:'Neoantigen sequencing → mRNA design → respons imun personal. Data trial fase III Moderna/MSD.'},
+      {title:'Slide 7: Kesimpulan & Akses',body:'Terapi target mahal — tantangan ekuitas kesehatan. Biosimilar, generik antibodi monoklonal. Peran bioinformatika.'},
+    ]
+  },
+  {
+    id:3, pillar:2, pillarLabel:'Pertanian & Pangan',
+    title:'Ketahanan Pangan & GMO',
+    desc:'Padi transgenik, Bt crops, Golden Rice, biopestisida, soil microbiome',
+    tags:['Pilar 2','Bioteknologi Pertanian','GMO'],
+    bg:'case-card pillar-2',
+    intro:'Populasi dunia menuju 10 miliar pada 2050. Produksi pangan harus naik 70% dengan lahan terbatas dan perubahan iklim.',
+    mechanism:[
+      '<strong>Mekanisme transformasi tanaman</strong>: Agrobacterium tumefaciens mengintegrasikan T-DNA ke kromosom tanaman. Gene gun (biolistics) untuk tanaman monokot (padi, jagung) yang resistan Agrobacterium.',
+      '<strong>Bt crops</strong>: gen cry dari Bacillus thuringiensis diklon ke dalam tanaman → protein Cry (protoxin) aktif di usus serangga alkalin → membentuk pori di membran epitel usus → serangga mati. Spesifik untuk Lepidoptera/Diptera/Coleoptera.',
+      '<strong>Golden Rice</strong>: padi transgenik dengan gen psy (phytoene synthase dari narsisis) + gen crtI (karotenoid desaturase dari bakteri) → biosintesis beta-karoten di endosperma → provitamin A untuk mengatasi kekurangan vitamin A.',
+      '<strong>Soil microbiome</strong>: rizosfer kaya mikoriza (meningkatkan penyerapan fosfor), rizobakteria PGPR (plant growth-promoting rhizobacteria) → fiksasi N, produksi auksin.',
+    ],
+    solutions:[
+      '<strong>Golden Rice 2</strong>: disetujui di Filipina 2021, Bangladesh 2023 — pertama di dunia. Dapat menyediakan 50–100% kebutuhan vitamin A dari 1 mangkok nasi.',
+      '<strong>Biopestisida</strong>: formulasi Bt spray alami (organik), virus NPV (Nucleopolyhedrovirus), fungus Beauveria bassiana.',
+      '<strong>Regenerative agriculture</strong>: rotasi tanaman, cover crop, minimal tillage → mengembalikan soil microbiome.',
+      '<strong>CRISPR tanaman</strong>: knockout gen susceptibility (mlo gen barley resistan powdery mildew), meningkatkan hasil tanpa transgen asing.',
+      '<strong>Biofortifikasi</strong>: meningkatkan kandungan nutrisi melalui pemuliaan konvensional + bioteknologi (zinc rice, iron bean).',
+    ],
+    slides:[
+      {title:'Slide 1: Tantangan Ketahanan Pangan',body:'9.7 miliar penduduk 2050. Arable land terbatas. Climate stress pada pertanian. Malnutrisi vs overnutrisi.'},
+      {title:'Slide 2: Teknik Rekombinasi DNA Tanaman',body:'Agrobacterium-mediated transformation. Biolistics. T-DNA integration. Verifikasi transforman (PCR, Southern blot).'},
+      {title:'Slide 3: Bt Crops — Mekanisme & Keamanan',body:'Protein Cry dan mekanisme toksisitas spesifik serangga. Data keamanan konsumsi manusia (EFSA, FDA). Resistensi serangga terhadap Bt.'},
+      {title:'Slide 4: Golden Rice — Kisah Sukses & Kontroversi',body:'Vitamin A deficiency (VAD): 250 juta anak kekurangan. Biosintesis beta-karoten. Greenpeace vs komunitas ilmiah. Regulasi persetujuan.'},
+      {title:'Slide 5: CRISPR Next-Gen Crops',body:'Perbedaan GMO vs CRISPR (no foreign DNA). Regulasi berbeda di EU vs AS. Contoh: CRISPR tomato Sikibio Japan.'},
+      {title:'Slide 6: Soil Microbiome & Pertanian Berkelanjutan',body:'Mikoriza, PGPR, biofertilizer. Efek monokultur pada diversitas mikrob tanah. Restorasi soil health.'},
+      {title:'Slide 7: Kesimpulan',body:'GMO dan CRISPR adalah alat — penggunaannya harus berbasis bukti ilmiah, bukan ketakutan. SDG 2: Zero Hunger.'},
+    ]
+  },
+  {
+    id:4, pillar:3, pillarLabel:'Lingkungan & Ekologi',
+    title:'Terumbu Karang & Perubahan Iklim',
+    desc:'Coral bleaching, zooxanthellae, restorasi karang, blue carbon',
+    tags:['Pilar 3','Ekologi Laut','Perubahan Iklim'],
+    bg:'case-card pillar-3',
+    intro:'50% terumbu karang dunia telah hilang sejak 1950. Peristiwa bleaching massal 2016 menghancurkan 50% Great Barrier Reef.',
+    mechanism:[
+      '<strong>Simbiosis karang-zooxanthellae</strong>: Zooxanthellae (Symbiodiniaceae) hidup di gastroderma polip karang. Menyediakan >90% energi karang via fotosintesis. Sebaliknya karang menyediakan CO₂ dan nutrisi bagi alga.',
+      '<strong>Mekanisme bleaching</strong>: suhu naik 1–2°C di atas threshold → photoinhibition di kloroplas zooxanthellae → reactive oxygen species (ROS) berlebih → karang mengusir zooxanthellae → tampak putih (skeleton aragonit).',
+      '<strong>Pengasaman laut</strong>: CO₂ terlarut → H₂CO₃ → H⁺ + HCO₃⁻ → pH turun → konsentrasi CO₃²⁻ berkurang → kalsifikasi karang terganggu (aragonit undersaturation).',
+      '<strong>Dampak domino</strong>: kehilangan karang → hilangnya habitat ikan → runtuhnya perikanan → dampak sosio-ekonomi pada ~500 juta manusia bergantung karang.',
+    ],
+    solutions:[
+      '<strong>Coral gardening (fragmentasi)</strong>: membiakkan fragmen karang di nursery bawah air, replanting di area yang rusak.',
+      '<strong>Assisted evolution</strong>: seleksi garis karang thermotolerant (Symbiodiniaceae C15 tahan panas). Backcrossing karang tahan panas.',
+      '<strong>CRISPR pada zooxanthellae</strong>: rekayasa strain zooxanthellae lebih tahan ROS untuk reinfeksi karang.',
+      '<strong>3D printed coral structures</strong>: substrat buatan untuk rekrutmen larva karang.',
+      '<strong>Marine protected areas (MPAs)</strong>: mengurangi stres non-termal (overfishing, polusi) → meningkatkan resiliensi.',
+      '<strong>Blue carbon</strong>: mangrove, padang lamun, dan karang sehat menyerap karbon → nilai ekonomi ekosistem laut dalam carbon market.',
+    ],
+    slides:[
+      {title:'Slide 1: Pentingnya Terumbu Karang',body:'1% luas laut, ~25% biodiversitas laut. Nilai ekonomi global $375 miliar/tahun. Hotspot biodiversitas Indonesia (Coral Triangle).'},
+      {title:'Slide 2: Ekologi Simbiosis Karang',body:'Polip karang + zooxanthellae. Transfer energi. Anatomi polip. Reef-building corals (hermatypic) vs non-hermatypic.'},
+      {title:'Slide 3: Mekanisme Bleaching',body:'Diagram ROS pathway. Suhu threshold. Mass bleaching event 1998, 2010, 2016. Status Global Coral Bleaching Event 2024.'},
+      {title:'Slide 4: Ancaman Ganda',body:'Bleaching (suhu) + pengasaman (pH) + Crown-of-thorns starfish + overfishing + polusi plastik/nutrisi.'},
+      {title:'Slide 5: Restorasi Aktif',body:'Coral gardening di Wakatobi, Raja Ampat. Assisted evolution. CRISPR zooxanthellae. Artificial reef.'},
+      {title:'Slide 6: Kebijakan & Blue Carbon',body:'UNFCCC, Paris Agreement. MPAs. Blue carbon crediting. Indonesia: 51,000 km² terumbu karang (terluas di dunia).'},
+      {title:'Slide 7: Kesimpulan',body:'Karang tidak bisa tunggu — aksi sekarang atau punah. Dekarbonisasi global adalah prasyarat. Restorasi lokal memberi waktu.'},
+    ]
+  },
+  {
+    id:5, pillar:1, pillarLabel:'Kesehatan & Biomedis',
+    title:'Gut Microbiome & Kesehatan',
+    desc:'Disbiosis, probiotik, hubungan usus-otak, penyakit metabolik',
+    tags:['Pilar 1','Mikrobiologi','Metabolisme'],
+    bg:'case-card pillar-1',
+    intro:'Microbiome usus manusia (~38 triliun bakteri, >1000 spesies) adalah "organ tersembunyi" yang mempengaruhi imunitas, metabolisme, hingga kesehatan mental.',
+    mechanism:[
+      '<strong>Komposisi normal</strong>: Firmicutes (~65%) dan Bacteroidetes (~25%) dominan. Ratio F/B meningkat pada obesitas.',
+      '<strong>Short-chain fatty acids (SCFA)</strong>: Bakteri fermentasi serat → butirat, propionat, asetat → energi untuk sel epitel kolon, regulasi imunitas, meningkatkan integritas tight junction.',
+      '<strong>Disbiosis</strong>: ketidakseimbangan komunitas mikrobial → permeabilitas usus meningkat (leaky gut) → LPS bakteri masuk sirkulasi → inflamasi sistemik kronik → terkait dengan obesitas, T2D, penyakit kardiovaskular, IBD.',
+      '<strong>Gut-brain axis</strong>: Komunikasi bidireksional via nervus vagus, hormon (serotonin — 90% diproduksi di usus), sitokin. Microbiome mempengaruhi suasana hati, kecemasan, bahkan risiko Parkinson dan Alzheimer.',
+      '<strong>Pengaruh pada imunitas</strong>: Segmented filamentous bacteria (SFB) memicu sel Th17 di usus. Bacteroides fragilis memproduksi PSA → menginduksi sel T regulatory → toleransi imun.',
+    ],
+    solutions:[
+      '<strong>Probiotik</strong>: Lactobacillus, Bifidobacterium — bukti manfaat untuk diare, IBS, mencegah AAD (antibiotic-associated diarrhea).',
+      '<strong>Prebiotik</strong>: inulin, FOS, pati resisten — "makanan" untuk bakteri baik.',
+      '<strong>Fecal Microbiota Transplantation (FMT)</strong>: sangat efektif untuk infeksi C. difficile rekuren (cure rate >90%). Diteliti untuk IBD, obesitas, bahkan gangguan autisme.',
+      '<strong>Postbiotik</strong>: metabolit bakteri aktif (SCFA, peptidoglikan, exopolisakarida) — generasi terbaru.',
+      '<strong>Precision microbiome modulation</strong>: diet personal berbasis profil microbiome individu (Weizmann Institute). Phage therapy untuk membunuh spesies spesifik yang tidak diinginkan.',
+    ],
+    slides:[
+      {title:'Slide 1: Microbiome — Organ Tersembunyi',body:'Angka: 38 triliun bakteri, 150× lebih banyak gen dari manusia (metagenom). Sejarah penelitian microbiome: dari culture ke metagenomics (16S rRNA sequencing, shotgun).'},
+      {title:'Slide 2: Komposisi & Fungsi Normal',body:'Phyla utama. SCFA dan perannya. Sintesis vitamin (K, B12). Proteksi terhadap patogen (kolonisasi resistansi).'},
+      {title:'Slide 3: Disbiosis & Penyakit',body:'Leaky gut mechanism. Asosiasi microbiome dengan T2D, obesitas, IBD, kanker kolorektal. Korelasi vs kausalitas.'},
+      {title:'Slide 4: Gut-Brain Axis',body:'Nervus vagus pathway. Serotonin enteroendokrin. Studi microbiome dan depresi/kecemasan. Germ-free mouse model.'},
+      {title:'Slide 5: Intervensi Terapeutik',body:'Probiotik (evidence-based indikasi). FMT: prosedur, keberhasilan C.diff. Risiko transmisi patogen via FMT.'},
+      {title:'Slide 6: Masa Depan — Precision Medicine',body:'Diet personal berbasis microbiome sequencing. Phage therapy targeted. Postbiotik generasi baru.'},
+      {title:'Slide 7: Kesimpulan',body:'Microbiome — frontier kesehatan abad 21. Implikasi untuk nutrisi, antibiotik stewardship, terapi penyakit kronis.'},
+    ]
+  },
+  {
+    id:6, pillar:3, pillarLabel:'Lingkungan & Ekologi',
+    title:'Bioremediasi Lingkungan',
+    desc:'Polusi plastik/minyak, bakteri degradasi, fungi, phytoremediation',
+    tags:['Pilar 3','Bioteknologi Lingkungan','Polusi'],
+    bg:'case-card pillar-3',
+    intro:'Polusi plastik (400 juta ton/tahun) dan pencemaran minyak bumi mengancam ekosistem global. Bioremediasi menggunakan organisme hidup sebagai solusi berkelanjutan.',
+    mechanism:[
+      '<strong>Biodegradasi plastik</strong>: PETase dan MHETase dari Ideonella sakaiensis (2016) mendegradasi PET. Wax moth Galleria mellonella memotong ikatan C-C polietilen via enzim di usus. Mealworm (Tenebrio molitor) memfermentasi styrofoam.',
+      '<strong>Degradasi minyak bumi</strong>: Bakteri Alcanivorax, Marinobacter, Rhodococcus memiliki alkane hydroxylase (AlkB) → mengoksidasi rantai karbon panjang menjadi alkohol → asam lemak → beta-oksidasi → CO₂ + H₂O.',
+      '<strong>Fitoremediasi</strong>: Tanaman hiperakumulator (Thlaspi caerulescens menyerap Cd/Zn, Pteris vittata menyerap arsenik). Rhizodegradasi: eksudasi akar merangsang degradasi kontaminan oleh mikrob rizosfer.',
+      '<strong>Fungi (Mycoremediation)</strong>: Pleurotus ostreatus (jamur tiram) mengandung lakase dan peroksidase → mendegradasi lignin, PAH, pewarna tekstil.',
+    ],
+    solutions:[
+      '<strong>Engineered microbes</strong>: Ideonella sakaiensis dioptimasi FAST-PETase (2022, UT Austin) → 6× lebih cepat.',
+      '<strong>Plastic-eating enzyme cocktails</strong>: kombinasi PETase + MHETase → degradasi >90% PET dalam 10 jam.',
+      '<strong>Constructed wetlands</strong>: lahan basah buatan dengan tanaman fitoremediasi + bakteri untuk mengolah air limbah industri.',
+      '<strong>Bioaugmentation</strong>: menambahkan konsorsium bakteri terdegradasi ke lokasi tumpahan minyak (Deepwater Horizon 2010 — Alcanivorax berperan besar).',
+      '<strong>CRISPR-enhanced bioremediation</strong>: meningkatkan ekspresi enzim degradasi, memperluas substrat yang bisa didegradasi.',
+    ],
+    slides:[
+      {title:'Slide 1: Krisis Polusi Global',body:'400 juta ton plastik/tahun, 8 juta ton ke laut. Tumpahan minyak terbesar. Dampak ekologis (microplastics di rantai makanan, tanah, bahkan darah manusia).'},
+      {title:'Slide 2: Biodegradasi Plastik',body:'Ideonella sakaiensis dan PETase. Mekanisme enzim. Penemuan 2016 dan engineering lebih lanjut. Kapasitas vs tantangan skala industri.'},
+      {title:'Slide 3: Bioremediasi Minyak Bumi',body:'Alkane hydroxylase pathway. Konsorsium bakteri di tumpahan minyak. Kasus Deepwater Horizon: peran Alcanivorax alami dan bioaugmentasi.'},
+      {title:'Slide 4: Fitoremediasi & Mycoremediation',body:'Hiperakumulator logam berat. Mekanisme uptake dan sekuestrasi vakuola. Jamur dan enzim ligninolitik. Kasus nyata: fitoremediasi tambang.'},
+      {title:'Slide 5: Bioteknologi Masa Depan',body:'FAST-PETase dan LCC-ICCG (efisien pada 72°C). Sintesis enzim baru berbasis AI (AlphaFold). CRISPR engineering degrader.'},
+      {title:'Slide 6: Implementasi & Regulasi',body:'Extended Producer Responsibility (EPR). Bioremediasi in situ vs ex situ. Risiko bioremediasi: organisme rekayasa ke lingkungan.'},
+      {title:'Slide 7: Kesimpulan',body:'Bioremediasi bukan solusi tunggal — harus kombinasi dengan pengurangan produksi polutan. Circular economy + bioremediasi = masa depan.'},
+    ]
+  },
+  {
+    id:7, pillar:4, pillarLabel:'Bioteknologi Industri',
+    title:'Diabetes Mellitus Tipe 2',
+    desc:'Resistensi insulin, gaya hidup, terapi gen, epidemiologi global',
+    tags:['Pilar 4','Metabolisme','Epidemiologi'],
+    bg:'case-card pillar-4',
+    intro:'537 juta orang hidup dengan diabetes (IDF 2021), proyeksi 643 juta pada 2030. Indonesia peringkat ke-7 dunia.',
+    mechanism:[
+      '<strong>Patofisiologi T2DM</strong>: Obesitas → lipotoksisitas dan inflamasi kronik → resistensi insulin di otot/hati/lemak (gangguan sinyal IRS-1/PI3K/Akt → GLUT4 tidak bergerak ke membran → glukosa tidak masuk sel). Sel β pankreas overworked → kelelahan → defisiensi insulin relatif.',
+      '<strong>Peran adipokin</strong>: Adiponektin menurun pada obesitas → kurang sensitivasi AMPK. Leptin resistan pada obesitas sentral. TNF-α dan IL-6 dari makrofag di jaringan lemak → memperburuk resistensi insulin.',
+      '<strong>GLUT4 pathway</strong>: Insulin berikatan ke reseptor → IRS-1 terfosforilasi → PI3K aktif → Akt aktif → AS160 terfosforilasi → GLUT4 vesikel fusi ke membran plasma → glukosa masuk.',
+      '<strong>Komplikasi</strong>: Hiperglikemia kronik → glycation protein → AGEs → disfungsi endotel → aterosklerosis, neuropati, nefropati, retinopati.',
+    ],
+    solutions:[
+      '<strong>Metformin</strong>: lini pertama — aktivasi AMPK → inhibisi glukoneogenesis hepatik, meningkatkan sensitifitas insulin.',
+      '<strong>GLP-1 receptor agonist</strong>: Semaglutide (Ozempic/Wegovy) — meniru inkretin, meningkatkan sekresi insulin, mengurangi nafsu makan, cardioprotektif.',
+      '<strong>SGLT-2 inhibitor</strong>: Empagliflozin, Dapagliflozin — memblok reabsorpsi glukosa di ginjal → glukosuria. Juga proteksi kardiovaskular dan renal.',
+      '<strong>Intervensi gaya hidup</strong>: penurunan berat badan 5-10% → perbaikan signifikan resistensi insulin. Olahraga aktivasi GLUT4 independen insulin (via AMPK).',
+      '<strong>Terapi gen masa depan</strong>: Penggantian sel β via stem cell (Vertex Pharmaceuticals — sel β dari iPSC, 2023 berhasil produksi insulin pada pasien T1DM). CRISPR untuk memperbaiki gen FTO, TCF7L2 yang terkait T2DM.',
+      '<strong>Pencegahan primer</strong>: identifikasi prediabetes (HbA1c 5.7–6.4%), intervensi gaya hidup intensif mengurangi risiko T2DM 58% (DPP study).',
+    ],
+    slides:[
+      {title:'Slide 1: Epidemiologi DM Global & Indonesia',body:'537 juta penderita. Indonesia: 19 juta (IDF 2021). Biaya kesehatan DM. Tren peningkatan. Dampak ekonomi.'},
+      {title:'Slide 2: Patofisiologi Resistensi Insulin',body:'Normal insulin signaling vs resistensi. GLUT4 trafficking. Peran adipokin. Ominous octet DeFronzo.'},
+      {title:'Slide 3: Dari Prediabetes ke T2DM',body:'Kompensasi sel β → kelelahan. Perjalanan natural history DM. Peran skrining HbA1c. Window of opportunity untuk pencegahan.'},
+      {title:'Slide 4: Komplikasi Mikro & Makrovaskular',body:'Mekanisme AGEs. Nefropati (GFR tracking). Retinopati. Neuropati. DM dan risiko kardiovaskular 2–4× lipat.'},
+      {title:'Slide 5: Farmakoterapi Modern',body:'Metformin. GLP-1 RA dan SGLT-2i: triple benefit (glikemik, kardio, renal). Personalized medicine berbasis farmakogenetik.'},
+      {title:'Slide 6: Terapi Sel & Gen',body:'iPSC → sel β. Enkapsulasi sel β untuk menghindari imun. CRISPR target gen diabetes. FMT dan microbiome pada T2DM.'},
+      {title:'Slide 7: Kesimpulan & Pencegahan',body:'Prevention > treatment. DPP study. Gaya hidup aktif, diet mediterania. SDG 3.4: mengurangi kematian dini penyakit tidak menular.'},
+    ]
+  }
+];
+
+// ===================== APP STATE =====================
+let currentTab='home';
+let quizMode='free';
+let answers={};
+let submitted=false;
+let timerInterval=null;
+let timeLeft=3600;
+let currentCase=null;
+
+// ===================== TAB NAVIGATION =====================
+function showTab(tab){
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  const tabs=['home','quiz','cases','tips'];
+  const idx=tabs.indexOf(tab);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  currentTab=tab;
+}
+
+// ===================== QUIZ =====================
+function startQuiz(mode){
+  quizMode=mode||'free';
+  answers={};
+  submitted=false;
+  document.getElementById('quiz-start').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('review-area').style.display='none';
+  renderQuestions();
+  if(quizMode==='timed'){
+    timeLeft=3600;
+    startTimer();
+  } else {
+    document.getElementById('timer-display').textContent='Bebas';
+  }
+}
+
+function renderQuestions(){
+  const container=document.getElementById('questions-container');
+  container.innerHTML='';
+  let currentSection='';
+  QUESTIONS.forEach((q,i)=>{
+    if(q.sec!==currentSection){
+      currentSection=q.sec;
+      const sl=document.createElement('div');
+      sl.className='section-label';
+      sl.textContent=`Bagian ${q.sec} — ${q.label}`;
+      container.appendChild(sl);
+    }
+    const card=document.createElement('div');
+    card.className='q-card';
+    const opts=q.opts.map((o,oi)=>`
+      <div class="opt" id="opt-${i}-${oi}" onclick="selectOpt(${i},${oi})">
+        <span class="opt-key">${['A','B','C','D'][oi]}.</span>
+        <span>${o}</span>
+      </div>`).join('');
+    card.innerHTML=`
+      <div class="q-num">Soal ${i+1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts-${i}">${opts}</div>
+      <div class="explanation" id="exp-${i}"><strong>Pembahasan:</strong> ${q.exp}</div>`;
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectOpt(qi,oi){
+  if(submitted)return;
+  answers[qi]=oi;
+  const opts=document.querySelectorAll(`#opts-${qi} .opt`);
+  opts.forEach(o=>o.classList.remove('selected'));
+  opts[oi].classList.add('selected');
+  updateProgress();
+  if(quizMode==='free'){
+    revealAnswer(qi);
+  }
+}
+
+function revealAnswer(qi){
+  const q=QUESTIONS[qi];
+  const opts=document.querySelectorAll(`#opts-${qi} .opt`);
+  opts.forEach((o,i)=>{
+    o.classList.add('disabled');
+    if(i===q.ans)o.classList.add('correct');
+    else if(answers[qi]===i)o.classList.add('wrong');
+  });
+  document.getElementById(`exp-${qi}`).classList.add('show');
+}
+
+function updateProgress(){
+  const answered=Object.keys(answers).length;
+  document.getElementById('q-counter').textContent=`${answered} / ${QUESTIONS.length} dijawab`;
+  const pct=(answered/QUESTIONS.length)*100;
+  document.getElementById('q-progress').style.width=pct+'%';
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    const m=Math.floor(timeLeft/60).toString().padStart(2,'0');
+    const s=(timeLeft%60).toString().padStart(2,'0');
+    const d=document.getElementById('timer-display');
+    d.textContent=`${m}:${s}`;
+    d.className='timer'+(timeLeft<300?' urgent':'');
+    if(timeLeft<=0){clearInterval(timerInterval);submitQuiz();}
+  },1000);
+}
+
+function submitQuiz(){
+  if(submitted)return;
+  submitted=true;
+  clearInterval(timerInterval);
+  // Calculate scores
+  let total=0;
+  const secScores={};
+  QUESTIONS.forEach((q,i)=>{
+    if(!secScores[q.sec])secScores[q.sec]={correct:0,total:0,label:q.label};
+    secScores[q.sec].total++;
+    if(answers[i]===q.ans){total++;secScores[q.sec].correct++;}
+  });
+  const pct=Math.round((total/QUESTIONS.length)*100);
+  let grade,gClass;
+  if(pct>=85){grade='A — Sangat Baik';gClass='score-A';}
+  else if(pct>=70){grade='B — Baik';gClass='score-B';}
+  else if(pct>=55){grade='C — Cukup';gClass='score-C';}
+  else if(pct>=40){grade='D — Kurang';gClass='score-D';}
+  else{grade='E — Perlu Belajar Lebih';gClass='score-E';}
+
+  document.getElementById('quiz-area').style.display='none';
+  document.getElementById('quiz-result').style.display='block';
+  document.getElementById('final-score').className='result-score '+gClass;
+  document.getElementById('final-score').textContent=pct+'%';
+  document.getElementById('grade-label').textContent=grade;
+  document.getElementById('result-detail').textContent=`${total} benar dari ${QUESTIONS.length} soal`;
+
+  const ssDiv=document.getElementById('section-scores');
+  ssDiv.innerHTML=Object.entries(secScores).map(([sec,v])=>`
+    <div class="sec-score">
+      <div class="s-letter">${sec}</div>
+      <div class="s-val">${Math.round(v.correct/v.total*100)}%</div>
+      <div class="s-lbl">${v.correct}/${v.total} · ${v.label}</div>
+    </div>`).join('');
+}
+
+function reviewAnswers(){
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('review-area').style.display='block';
+  const rv=document.getElementById('review-questions');
+  rv.innerHTML='';
+  let currentSection='';
+  QUESTIONS.forEach((q,i)=>{
+    if(q.sec!==currentSection){
+      currentSection=q.sec;
+      const sl=document.createElement('div');
+      sl.className='section-label';
+      sl.style.marginTop='1.5rem';
+      sl.textContent=`Bagian ${q.sec} — ${q.label}`;
+      rv.appendChild(sl);
+    }
+    const isCorrect=answers[i]===q.ans;
+    const card=document.createElement('div');
+    card.className='q-card';
+    card.style.borderColor=isCorrect?'rgba(74,222,128,.4)':'rgba(255,107,107,.4)';
+    const opts=q.opts.map((o,oi)=>{
+      let cls='opt disabled';
+      if(oi===q.ans)cls+=' correct';
+      else if(answers[i]===oi)cls+=' wrong';
+      return `<div class="${cls}"><span class="opt-key">${['A','B','C','D'][oi]}.</span><span>${o}</span></div>`;
+    }).join('');
+    const status=isCorrect?`<span style="color:var(--ok);font-size:.8rem">✓ Benar</span>`:`<span style="color:var(--danger);font-size:.8rem">✗ Salah${answers[i]!==undefined?' (pilih '+['A','B','C','D'][answers[i]]+')':' (tidak dijawab)'}</span>`;
+    card.innerHTML=`
+      <div class="q-num">Soal ${i+1} &nbsp; ${status}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${opts}</div>
+      <div class="explanation show"><strong>Pembahasan:</strong> ${q.exp}</div>`;
+    rv.appendChild(card);
+  });
+}
+
+function backToResult(){
+  document.getElementById('review-area').style.display='none';
+  document.getElementById('quiz-result').style.display='block';
+}
+
+function resetQuiz(){
+  answers={};submitted=false;
+  clearInterval(timerInterval);
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('review-area').style.display='none';
+  document.getElementById('quiz-area').style.display='none';
+  document.getElementById('quiz-start').style.display='block';
+}
+
+function confirmReset(){
+  if(confirm('Reset kuis? Semua jawaban akan hilang.'))resetQuiz();
+}
+
+// ===================== CASE STUDIES =====================
+function renderCaseCards(){
+  const grid=document.getElementById('case-cards');
+  if(!grid)return;
+  grid.innerHTML=CASES.map(c=>`
+    <div class="${c.bg}" onclick="showCase(${c.id})">
+      <div class="case-pillar p${c.pillar}">${c.pillarLabel}</div>
+      <div class="case-title">${c.title}</div>
+      <div class="case-desc">${c.desc}</div>
+      <div style="margin-top:.75rem">${c.tags.map(t=>`<span class="tag tag-b">${t}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function showCase(id){
+  const c=CASES[id];
+  currentCase=id;
+  document.getElementById('cases-list').style.display='none';
+  const area=document.getElementById('case-detail-area');
+  area.innerHTML=`
+    <div class="btn-row"><button class="btn btn-secondary" onclick="backToCases()">← Kembali</button></div>
+    <div class="case-section" style="border-top:3px solid var(--accent2)">
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:.4rem">${c.pillarLabel}</div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:.5rem">${c.title}</h2>
+      <p>${c.intro}</p>
+    </div>
+    <div class="case-section">
+      <h3>Mekanisme Biologis</h3>
+      <ul>${c.mechanism.map(m=>`<li>${m}</li>`).join('')}</ul>
+    </div>
+    <div class="case-section">
+      <h3>Solusi & Inovasi</h3>
+      <ul>${c.solutions.map(s=>`<li>${s}</li>`).join('')}</ul>
+    </div>
+    <div class="case-section">
+      <button class="toggle-btn" onclick="togglePPT()">⊞ Tampilkan Kerangka PPT (${c.slides.length} slide)</button>
+      <div class="hidden-section" id="ppt-section">
+        <div class="ppt-box">
+          <div style="font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem">Kerangka Presentasi (2 jam)</div>
+          ${c.slides.map((s,i)=>`<div class="ppt-slide"><strong>Slide ${i+1}: ${s.title}</strong>${s.body}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="case-section">
+      <button class="toggle-btn" onclick="toggleQA()">⊞ Contoh Pertanyaan Juri & Jawaban</button>
+      <div class="hidden-section" id="qa-section">
+        ${generateQA(id)}
+      </div>
+    </div>`;
+  area.style.display='block';
+}
+
+function generateQA(id){
+  const qa={
+    0:[['Apa perbedaan mekanisme MRSA dengan E. coli ESBL dalam resistensi?','MRSA menggunakan PBP2a (modified target) — tidak bisa diikat beta-laktam. E. coli ESBL menghasilkan extended-spectrum beta-laktamase yang menghidrolisis sefalosporin generasi 3–4. Keduanya bisa bersamaan dengan efflux pump.'],
+       ['Mengapa antibiotik tidak boleh dihentikan sebelum habis?','Penghentian prematur menyisakan bakteri semi-resistan yang paling kuat. Mereka bertahan, bereproduksi, dan menciptakan generasi lebih resistan — seleksi Darwinian dalam tubuh pasien.']],
+    1:[['Mengapa H5N1 sangat mematikan pada manusia tapi belum efisien menyebar antar manusia?','H5N1 menggunakan reseptor α2-3 sialic acid yang dominan di paru-paru dalam (alveoli) — ini menyebabkan pneumonia berat. Influenza musiman menggunakan α2-6 di saluran napas atas → mudah menyebar via droplet tapi kurang mematikan.'],
+       ['Apa keunggulan vaksin mRNA universal flu dibanding vaksin tahunan konvensional?','Vaksin konvensional menarget HA head yang hipervariabel → harus diformulasi ulang tiap tahun. Vaksin universal menarget HA stem yang sangat konserved → satu vaksin untuk banyak strain. Platform mRNA juga bisa diproduksi dalam minggu.']],
+    2:[['Bagaimana CAR-T cell dibuat dan mengapa efektif untuk leukemia?','Darah pasien diambil, T cell diisolasi, gen CAR (chimeric antigen receptor untuk CD19) dimasukkan via retrovirus/lentivirus, T cell diperbanyak ex vivo, lalu diinfuskan kembali. CD19 diekspresikan hampir di semua sel B leukemia → terget spesifik.'],
+       ['Apa perbedaan terapi target (targeted therapy) dengan kemoterapi konvensional?','Kemoterapi membunuh semua sel yang membelah cepat (kanker dan normal: rambut, mukosa, sumsum tulang). Targeted therapy hanya menyerang sel dengan target spesifik (HER2, EGFR, BCR-ABL) → lebih selektif, efek samping lebih ringan.']],
+    3:[['Bagaimana cara membuktikan bahwa Golden Rice aman dikonsumsi?','Melalui serangkaian uji: toksikologi pada hewan (tikus selama 90 hari), alergenisitas (bioinformatika + skin prick test), komposisi nutrisi, stabilitas beta-karoten setelah memasak. Lembaga regulasi: FDA (AS), EFSA (EU), BPOM (Indonesia).'],
+       ['Apa perbedaan GMO dengan CRISPR dalam regulasi internasional?','GMO memasukkan gen asing (transgen) → sebagian besar negara memerlukan regulasi ketat. CRISPR tanpa transgen hanya membuat mutasi titik yang bisa terjadi secara alami → AS, Argentina, Chile tidak mengklasifikasikannya sebagai GMO. EU masih debat.']],
+    4:[['Mengapa pemanasan global 2°C saja bisa menyebabkan bleaching massal?','Karang hidup sangat dekat threshold toleransi suhu mereka (1–2°C di atas rata-rata musiman). Di atas threshold, kloroplas zooxanthellae mengalami photoinhibition → ROS berlebih → karang mengusir simbionnya. Bleaching massal terjadi saat anomali suhu +1°C berlangsung >4 minggu.'],
+       ['Apa itu assisted evolution dalam konteks restorasi karang?','Ilmuwan menyeleksi karang dan zooxanthellae dengan thermotolerance lebih tinggi (dari lokasi lebih panas atau eksperimen lab) → menggunakannya sebagai induk untuk reproduksi → "memaksimalkan" evolusi adaptif yang sudah berjalan tapi terlalu lambat untuk mengimbangi perubahan iklim.']],
+    5:[['Bagaimana gut microbiome mempengaruhi kesehatan mental? (Gut-brain axis)','Via tiga jalur: (1) Nervus vagus — bakteri usus memproduksi neurotransmitter (GABA, serotonin) yang mengirim sinyal ke otak, (2) Endokrin — serotonin enteroendokrin (90% serotonin tubuh ada di usus), (3) Imun — mikrob mengatur inflamasi sistemik yang mempengaruhi neuroinflammasi.'],
+       ['Apakah FMT (Fecal Microbiota Transplantation) aman? Apa risikonya?','Efektivitas FMT untuk C. difficile >90% jauh melampaui antibiotik. Risiko: transmisi patogen (2 kematian pasien imunosupres akibat FMT mengandung ESBL — 2019). Sekarang standar donor lebih ketat termasuk skrining multi-drug resistant organisms.']],
+    6:[['Bagaimana Ideonella sakaiensis mendegradasi plastik PET? Mengapa ini revolusioner?','I. sakaiensis menghasilkan PETase yang memotong ikatan ester PET → MHET, lalu MHETase → TPA + EG yang bisa dimetabolisme. Revolusioner karena PET adalah plastik paling banyak diproduksi. FAST-PETase (2022) melakukannya dalam jam pada suhu 50°C.'],
+       ['Apa risiko melepaskan bakteri transgenik pengurai plastik ke lingkungan terbuka?','Risiko transfer gen horizontal ke bakteri lain (menyebarkan kemampuan degradasi ke organisme tidak terduga). Risiko disruptive: jika bakteri mendegradasi polimer plastik yang masih berfungsi (pipa, peralatan medis). Solusi: kill switch genetic (Darlington et al.) — bakteri mati jika keluar dari lingkungan terkontrol.']],
+    7:[['Jelaskan mekanisme molekuler resistensi insulin pada sel otot.','Kelebihan asam lemak bebas (obesitas) → masuk sel otot → DAG dan ceramide menumpuk → PKC theta aktif → fosforilasi inhibitori IRS-1 (ser307) → IRS-1 tidak dapat mengaktifkan PI3K → Akt tidak aktif → AS160 tidak terfosforilasi → vesikel GLUT4 tidak fusi ke membran → glukosa tidak masuk.'],
+       ['Mengapa semaglutide (GLP-1 RA) dianggap game-changer dalam terapi DM dan obesitas?','GLP-1 RA meniru incretin alami: (1) meningkatkan sekresi insulin hanya ketika glukosa tinggi (glucose-dependent — tidak hipoglikemia), (2) menekan glukagon, (3) memperlambat pengosongan lambung, (4) efek sentral di hipotalamus → mengurangi nafsu makan → penurunan berat badan 15-20%. Plus bukti kardioproteksi dan renoproteksi.']]
+  };
+  const qas=qa[id]||[];
+  return qas.map(([q,a])=>`
+    <div style="background:var(--bg3);border-radius:10px;padding:1rem;margin:.6rem 0">
+      <p style="font-size:.875rem;font-weight:500;color:var(--accent2);margin-bottom:.4rem">❓ ${q}</p>
+      <p style="font-size:.83rem;color:var(--muted);line-height:1.7">${a}</p>
+    </div>`).join('');
+}
+
+function togglePPT(){document.getElementById('ppt-section').classList.toggle('show')}
+function toggleQA(){document.getElementById('qa-section').classList.toggle('show')}
+
+function backToCases(){
+  document.getElementById('cases-list').style.display='block';
+  document.getElementById('case-detail-area').innerHTML='';
+  document.getElementById('case-detail-area').style.display='none';
+}
+
+// Init
+renderCaseCards();
+</script>
+</body>
+</html>
+HTMLEOF
+echo "File size: $(wc -c < /mnt/user-data/outputs/IABO_GrandFinal_2026.html) bytes"
+echo "Line count: $(wc -l < /mnt/user-data/outputs/IABO_GrandFinal_2026.html)"
+Keluaran
+
+File size: 89737 bytes
+Line count: 918
